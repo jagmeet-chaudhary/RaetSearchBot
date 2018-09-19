@@ -1,17 +1,13 @@
-﻿using Autofac;
-using Microsoft.Bot.Builder.Dialogs;
+﻿using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 using Microsoft.Bot.Connector;
-using SearchBot.Model;
-using SearchBot.Service.HRM;
 using SearchBot.Service.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace SearchBot.Dialogs
 {
@@ -30,25 +26,64 @@ namespace SearchBot.Dialogs
         [LuisIntent("")]
         public async Task None(IDialogContext context, LuisResult result)
         {
-            await context.PostAsync("I'm sorry I don't know what you mean.");
+
+
+            await Signout(context);
+
+
+            //await context.PostAsync("I'm sorry I don't know what you mean.");
             context.Wait(MessageReceived);
         }
+
+        [LuisIntent("Signin")]
+        public async Task SignIn(IDialogContext context, LuisResult result)
+        {
+            var accessToken = await context.GetUserTokenAsync("testclient1");
+
+            if (string.IsNullOrEmpty(accessToken?.Token))
+            {
+
+                context.Call(GetSignInDialog(), this.GetToken);
+
+            }
+        }
+
         [LuisIntent("Greetings")]
         public async Task Greeting(IDialogContext context, LuisResult result)
         {
-            context.Call(new GreetingDialog(), Callback);
+
+
+            var accessToken = await context.GetUserTokenAsync("testclient1");
+
+            if (string.IsNullOrEmpty(accessToken?.Token))
+            {
+
+                await context.Forward(GetSignInDialog(), this.ResumeAfterAuth, context.MakeMessage(), CancellationToken.None);
+
+            }
+            await context.PostAsync("You're inside");
+
+            //context.Call(new GreetingDialog(), Callback);
+
+
+        }
+
+        private async Task ResumeAfterAuth(IDialogContext context, IAwaitable<object> result)
+        {
+            var message = await result;
+
+            await context.PostAsync(context.MakeMessage());
+
         }
 
         [LuisIntent("HRM.QueryManagerForEmployee")]
         public async Task QueryManagerForEmployee(IDialogContext context, LuisResult result)
         {
-            
-
-            var firstName  = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity;
+            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity;
             var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity;
-            var employees = employeeService.GetEmployeesByName(firstName,lastName);
+            var employees = employeeService.GetEmployeesByName(firstName, lastName);
 
-            if(employees.Count > 1)
+            if (employees.Count > 1)
             {
                 var attachments = conversationInterface.GetEmployeeSearchList(employees);
                 var message = context.MakeMessage();
@@ -57,7 +92,7 @@ namespace SearchBot.Dialogs
 
                 await context.PostAsync(message);
             }
-            else if(employees.Count == 1)
+            else if (employees.Count == 1)
             {
                 var manager = employeeService.GetManger(employees.FirstOrDefault());
                 var message = conversationInterface.GetManagerMessage(manager);
@@ -68,12 +103,31 @@ namespace SearchBot.Dialogs
                 var message = conversationInterface.GetNoEmployeesMessage();
                 await context.PostAsync(message);
             }
-            
 
-            
+
+
         }
 
-        
+        #region Private
+        private static async Task Signout(IDialogContext context)
+        {
+            string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
+
+            await context.SignOutUserAsync(ConnectionName);
+            await context.PostAsync($"You have been signed out.");
+        }
+
+        private async Task GetToken(IDialogContext context, IAwaitable<GetTokenResponse> tokenResponse)
+        {
+
+            var message = await tokenResponse;
+            context.PrivateConversationData.SetValue("Token", message?.Token);
+
+
+            await context.PostAsync("You're inside");
+
+        }
+
         private async Task Callback(IDialogContext context, IAwaitable<object> result)
         {
             context.Wait(MessageReceived);
@@ -89,6 +143,7 @@ namespace SearchBot.Dialogs
                2,
                "Hmm. Something went wrong, let's try again.");
         }
+        #endregion
 
 
     }

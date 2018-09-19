@@ -1,13 +1,12 @@
-﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Internals;
 using Microsoft.Bot.Connector;
-using SearchBot.DependencyInjection;
 using SearchBot.Dialogs;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace SearchBot
 {
@@ -19,14 +18,14 @@ namespace SearchBot
         /// Receive a message from a user and reply to it
         /// </summary>
         /// 
-       
+
         public MessagesController()
         {
-            
+
         }
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            
+
             if (activity.GetActivityType() == ActivityTypes.Message)
             {
                 using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, activity))
@@ -34,8 +33,6 @@ namespace SearchBot
                     var dialog = scope.Resolve<LUISDialog>();
                     await Conversation.SendAsync(activity, () => dialog);
                 }
-
-                
             }
             else
             {
@@ -44,10 +41,10 @@ namespace SearchBot
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
-       
+
         public HttpResponseMessage Get()
         {
-            var response = Request.CreateResponse(HttpStatusCode.OK,"Tested");
+            var response = Request.CreateResponse(HttpStatusCode.OK, "Tested");
             return response;
         }
         private Activity HandleSystemMessage(Activity message)
