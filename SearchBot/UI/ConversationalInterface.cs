@@ -16,7 +16,7 @@ namespace SearchBot
             var listActionValues = new List<CardActionValues>();
             foreach(var employee in employees)
             {
-                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.LastName}, {employee.FirstName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?" });
+                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?" });
             }
             attachments.Add(UIHelper.CreateHeroCard("We seem to have multiple people with name 'John'.", "Who exactly are you looking for ?", "", listActionValues));
             return attachments;
@@ -25,7 +25,7 @@ namespace SearchBot
 
         public string GetManagerMessage(Employee employee)
         {
-            return $"Manager is {employee.LastName}, {employee.FirstName}";
+            return $"Manager is {employee.FirstName} {employee.LastName}";
         }
 
         public string GetNoEmployeesMessage()

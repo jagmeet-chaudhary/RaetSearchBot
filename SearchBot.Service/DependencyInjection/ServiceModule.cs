@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using SearchBot.Common;
+using SearchBot.Connectors;
+using SearchBot.Connectors.HRM;
 using SearchBot.Connectors.Mocks;
 using System;
 using System.Collections.Generic;
@@ -14,10 +17,21 @@ namespace SearchBot.Service.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             base.Load(builder);
-            builder.RegisterType<MockHrmConnector>()
-                .AsImplementedInterfaces()
+
+            builder.RegisterType<RequestHelper>()
+               .AsImplementedInterfaces()
+               .InstancePerLifetimeScope();
+
+            builder.RegisterType<TokenProvider>()
+              .AsImplementedInterfaces()
+              .InstancePerLifetimeScope();
+
+            builder.RegisterType<HrmApiConnector>()
+                .As<IHrmConnector>()
                 .InstancePerLifetimeScope();
-         
+
+
+
         }
     }
 }

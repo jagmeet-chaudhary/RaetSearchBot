@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SearchBot.Connectors.HRM.Model
 {
-        public class HrmEmployee
+        public class HrmEmployees
         {
             public Person[] Items { get; set; }
         }

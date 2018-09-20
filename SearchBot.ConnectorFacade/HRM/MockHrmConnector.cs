@@ -56,7 +56,7 @@ namespace SearchBot.Connectors.Mocks
             return new Employee()
             {
                 FirstName = "Jason",
-                LastName = "Smit"
+                LastName = "Smith"
             };
         }
 
