@@ -65,5 +65,10 @@ namespace SearchBot.Connectors.Mocks
         {
             throw new NotImplementedException();
         }
+
+        public ResultTaskDto GetPendingTaskForEmployee()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

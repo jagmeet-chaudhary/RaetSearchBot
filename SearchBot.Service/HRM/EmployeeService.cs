@@ -42,5 +42,15 @@ namespace SearchBot.Service.HRM
             // var orgunit = hrmConnector.GetOrgUnitByName(orgUnitName);
             return orgunit;
         }
+
+        public ResultTaskDto GetPendingTaskForEmployee()
+        {
+
+            //HrmApiConnector h = new HrmApiConnector(new RequestHelper(), new TokenProvider());
+
+            var pendingTask = hrmConnector.GetPendingTaskForEmployee();
+           
+            return pendingTask;
+        }
     }
 }

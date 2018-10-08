@@ -1,15 +1,18 @@
 {
-    "name": "HARSHFINALBOT",
+    "name": "RaetInnovationBoat",
     "description": "",
-    "secretKey": "",
     "services": [
         {
-            "appId": "1c1c2d32-c26c-47ce-8103-4f42d6828c6f",
-            "id": "4172ede0-cae6-11e8-9d8f-3d150a54d74e",
             "type": "endpoint",
+            "appId": "1c1c2d32-c26c-47ce-8103-4f42d6828c6f",
             "appPassword": "twCIMPZ753$rxnjzBF39*%)",
             "endpoint": "http://localhost:3978/api/messages",
+            "id": "91192e30-cb32-11e8-8785-bd237cb3d1f4",
             "name": "http://localhost:3978/api/messages"
         }
-    ]
+    ],
+    "secretKey": "",
+    "version": "2.0",
+    "overrides": null,
+    "path": "C:\\New folder\\SearchBot\\SearchBot.bot"
 }

@@ -71,5 +71,27 @@ namespace SearchBot.Connectors.HRM
             return null;
         }
 
+        public ResultTaskDto GetPendingTaskForEmployee()
+        {
+            requestHelper.Init("WorkFlowBaseUri");
+            requestHelper.AuthenticationToken = tokenProvider.GetToken();
+            var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
+            requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
+            try
+            {
+                string testurl = "api/tasks/Pending?$count=true&$top=5&$skip=0";
+                var pendingTask = requestHelper.GetAsync<ResultTaskDto>(testurl).Result;
+                return pendingTask;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("the test");
+            }
+
+
+
+            return null;
+        }
+
     }
 }

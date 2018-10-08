@@ -116,7 +116,7 @@ namespace SearchBot.Dialogs
 
             if (!string.IsNullOrEmpty(accessToken?.Token))
             {
-                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnitName")?.Entity;
+                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
 
                 var orgunit = employeeService.GetOrgUnitByName(orgUnitName);
 
@@ -132,6 +132,41 @@ namespace SearchBot.Dialogs
                     var message = conversationInterface.GetNoEmployeesMessage();
                     await context.PostAsync(message);
                 }
+
+            }
+            else
+            {
+                context.Call(GetSignInDialog(), this.GetToken);
+
+            }
+
+        }
+
+
+        [LuisIntent("HRM.QueryPendingTaskForEmployee")]
+        public async Task QueryPendingTaskForEmployee(IDialogContext context, LuisResult result)
+        {
+
+            var accessToken = await context.GetUserTokenAsync("testclient1");
+
+            if (!string.IsNullOrEmpty(accessToken?.Token))
+            {
+               // var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
+
+                var orgunit = employeeService.GetPendingTaskForEmployee();
+
+
+                //if (orgunit != null)
+                //{
+                //    //var manager = employeeService.GetManger(employees.FirstOrDefault());
+                //    var message = conversationInterface.GetOrgUnitMessage(orgunit);
+                //    await context.PostAsync(message);
+                //}
+                //else
+                //{
+                //    var message = conversationInterface.GetNoEmployeesMessage();
+                //    await context.PostAsync(message);
+                //}
 
             }
             else

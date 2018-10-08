@@ -1,5 +1,6 @@
 ﻿using SearchBot.Model;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SearchBot.Service.Interfaces
 {
@@ -9,6 +10,8 @@ namespace SearchBot.Service.Interfaces
         Employee GetManger(Employee employee);
 
         AuditChangeContextDto GetOrgUnitByName(string orgUnitName);
+
+        ResultTaskDto GetPendingTaskForEmployee();
 
     }
 }

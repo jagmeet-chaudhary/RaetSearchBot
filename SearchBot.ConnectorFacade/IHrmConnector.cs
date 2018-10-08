@@ -14,5 +14,6 @@ namespace SearchBot.Connectors
         Employee GetManagerForEmployee(Employee employee);
 
         AuditChangeContextDto GetOrgUnitByName(string orgUnitName);
+        ResultTaskDto GetPendingTaskForEmployee() ;
     }
 }
