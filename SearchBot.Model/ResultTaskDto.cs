@@ -8,9 +8,9 @@ namespace SearchBot.Model
 {
     public class ResultTaskDto
     {
-        public List<TaskDto> Items { get; set; }
+        public IList<TaskDto> Items { get; set; }
         public int Count { get; set; }
 
-        public string NextPageLink { get; set; }
+        //public string NextPageLink { get; set; }
     }
 }
