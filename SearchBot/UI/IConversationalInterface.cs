@@ -1,4 +1,5 @@
-﻿using Microsoft.Bot.Connector;
+﻿using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Connector;
 using SearchBot.Model;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,8 @@ namespace SearchBot
 {
     public interface IQueryManagerConversationInterface
     {
-        List<Attachment> GetEmployeeSearchList(List<Employee> employees);
-        string GetNoEmployeesMessage();
-        string GetManagerMessage(Employee employee);
+        List<Attachment> GetEmployeeSearchList(List<Employee> employees,IDialogContext context);
+        string GetNoEmployeesMessage(IDialogContext context);
+        string GetManagerMessage(Employee employee,Employee manager,IDialogContext context);
     }
 }

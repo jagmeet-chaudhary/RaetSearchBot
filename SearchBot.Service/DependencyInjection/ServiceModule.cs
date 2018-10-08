@@ -26,7 +26,7 @@ namespace SearchBot.Service.DependencyInjection
               .AsImplementedInterfaces()
               .InstancePerLifetimeScope();
 
-            builder.RegisterType<HrmApiConnector>()
+            builder.RegisterType<MockHrmConnector>()
                 .As<IHrmConnector>()
                 .InstancePerLifetimeScope();
 

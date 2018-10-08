@@ -176,6 +176,10 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="App_Start\DependencyInjection\SearchBotModule.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Translator\AzureAuthToken.cs" />
+    <Compile Include="Translator\TranslationHandler.cs" />
+    <Compile Include="Translator\Translator.cs" />
     <Compile Include="UI\ConversationalInterface.cs" />
     <Compile Include="Dialogs\GreetingDialog.cs" />
     <Compile Include="Dialogs\LUISDialog.cs" />
@@ -186,6 +190,8 @@
     <Compile Include="UI\IConversationalInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\UIHelper.cs" />
+    <Compile Include="Utilities\Settings.cs" />
+    <Compile Include="Utilities\StringConstants.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
