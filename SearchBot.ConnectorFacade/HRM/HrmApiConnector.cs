@@ -48,6 +48,28 @@ namespace SearchBot.Connectors.HRM
             return searchResult;
         }
 
-         
+
+        public AuditChangeContextDto GetOrgUnitByName(string orgUnitName)
+        {
+            requestHelper.Init("HrmBaseUri");
+            requestHelper.AuthenticationToken = tokenProvider.GetToken();
+            var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
+            requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
+            try
+            {
+                string testurl = "api/auditreader/odm/?$count=true&$top=25&$skip=0&$filter=EntityName%20eq%20%27HRM_OrganizationalUnit%27%20and%20ChangedDate%20ge%202018-07-31T18:30:00Z%20and%20ChangedDate%20le%202018-09-19T18:29:59Z&$orderby=ChangedDate%20desc";
+                var hrmEmployees = requestHelper.GetAsync<OdataAuditContextDto>(testurl).Result;
+                return hrmEmployees.Items.FirstOrDefault(s => s.SubjectName.ToLower() == orgUnitName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("the test");
+            }
+
+
+
+            return null;
+        }
+
     }
 }

@@ -1,14 +1,15 @@
 {
-  "name": "SearchBot",
-  "secretKey": "",
-  "services": [
-    {
-      "appId": "",
-      "id": "http://localhost:3978/api/messages",
-      "type": "endpoint",
-      "appPassword": "",
-      "endpoint": "http://localhost:3978/api/messages",
-      "name": "SearchBot"
-    }
-  ]
+    "name": "HARSHFINALBOT",
+    "description": "",
+    "secretKey": "",
+    "services": [
+        {
+            "appId": "1c1c2d32-c26c-47ce-8103-4f42d6828c6f",
+            "id": "4172ede0-cae6-11e8-9d8f-3d150a54d74e",
+            "type": "endpoint",
+            "appPassword": "twCIMPZ753$rxnjzBF39*%)",
+            "endpoint": "http://localhost:3978/api/messages",
+            "name": "http://localhost:3978/api/messages"
+        }
+    ]
 }

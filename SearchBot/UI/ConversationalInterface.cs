@@ -32,5 +32,10 @@ namespace SearchBot
         {
             return "Sorry, I could not find any employee with this name.";
         }
+
+        public string GetOrgUnitMessage(AuditChangeContextDto dto)
+        {
+            return $"Change made on {dto.SubjectName} by {dto.InitiatorName}";
+        }
     }
 }

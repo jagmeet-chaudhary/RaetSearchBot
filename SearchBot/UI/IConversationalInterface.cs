@@ -13,5 +13,7 @@ namespace SearchBot
         List<Attachment> GetEmployeeSearchList(List<Employee> employees);
         string GetNoEmployeesMessage();
         string GetManagerMessage(Employee employee);
+
+        string GetOrgUnitMessage(AuditChangeContextDto employee);
     }
 }

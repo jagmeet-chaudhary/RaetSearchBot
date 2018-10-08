@@ -12,5 +12,7 @@ namespace SearchBot.Connectors
     {
         List<Employee> SearchEmployees(Employee employee);
         Employee GetManagerForEmployee(Employee employee);
+
+        AuditChangeContextDto GetOrgUnitByName(string orgUnitName);
     }
 }

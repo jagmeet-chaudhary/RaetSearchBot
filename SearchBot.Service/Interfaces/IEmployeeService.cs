@@ -7,5 +7,8 @@ namespace SearchBot.Service.Interfaces
     {
         List<Employee> GetEmployeesByName(string firstName,string lastName);
         Employee GetManger(Employee employee);
+
+        AuditChangeContextDto GetOrgUnitByName(string orgUnitName);
+
     }
 }

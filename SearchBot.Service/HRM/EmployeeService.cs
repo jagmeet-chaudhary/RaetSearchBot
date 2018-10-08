@@ -31,5 +31,16 @@ namespace SearchBot.Service.HRM
             var manager = hrmConnector.GetManagerForEmployee(employee);
             return manager;
         }
+
+        public AuditChangeContextDto GetOrgUnitByName(string orgUnitName)
+        {
+
+            //HrmApiConnector h = new HrmApiConnector(new RequestHelper(), new TokenProvider());
+
+            var orgunit = hrmConnector.GetOrgUnitByName(orgUnitName);
+            //var result = h.GetOrgUnitByName(orgUnitName);
+            // var orgunit = hrmConnector.GetOrgUnitByName(orgUnitName);
+            return orgunit;
+        }
     }
 }

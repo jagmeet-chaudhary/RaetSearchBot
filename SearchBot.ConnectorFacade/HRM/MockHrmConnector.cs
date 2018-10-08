@@ -60,6 +60,10 @@ namespace SearchBot.Connectors.Mocks
             };
         }
 
-        
+
+        public AuditChangeContextDto GetOrgUnitByName(string orgUnitName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
