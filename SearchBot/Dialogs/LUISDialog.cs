@@ -81,9 +81,13 @@ namespace SearchBot.Dialogs
         {
             var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity;
             var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity;
-            var employees = employeeService.GetEmployeesByName(firstName, lastName);
 
-            if (employees.Count > 1)
+            var accessToken = await context.GetUserTokenAsync("testclient1");
+
+
+            var employees = employeeService.GetEmployeesByName(firstName, lastName, accessToken.Token);
+
+                if (employees.Count > 1)
             {
                 var attachments = conversationInterface.GetEmployeeSearchList(employees);
                 var message = context.MakeMessage();
@@ -94,7 +98,7 @@ namespace SearchBot.Dialogs
             }
             else if (employees.Count == 1)
             {
-                var manager = employeeService.GetManger(employees.FirstOrDefault());
+                var manager = employeeService.GetManger(employees.FirstOrDefault(),accessToken.Token);
                 var message = conversationInterface.GetManagerMessage(manager);
                 await context.PostAsync(message);
             }
@@ -118,7 +122,7 @@ namespace SearchBot.Dialogs
             {
                 var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
 
-                var orgunit = employeeService.GetOrgUnitByName(orgUnitName);
+                var orgunit = employeeService.GetOrgUnitByName(orgUnitName, accessToken.Token);
 
 
                 if (orgunit != null)
@@ -150,23 +154,48 @@ namespace SearchBot.Dialogs
             var accessToken = await context.GetUserTokenAsync("testclient1");
 
             if (!string.IsNullOrEmpty(accessToken?.Token))
+            {               
+
+                var tasks = employeeService.GetPendingTaskForEmployee(accessToken.Token);
+
+                var attachments = conversationInterface.GetPendingTaskForEmployee(tasks);
+                var message = context.MakeMessage();
+                message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                message.Attachments = attachments;
+
+                await context.PostAsync(message);
+                
+
+            }
+            else
             {
-               // var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
+                context.Call(GetSignInDialog(), this.GetToken);
 
-                var orgunit = employeeService.GetPendingTaskForEmployee();
+            }
+
+        }
 
 
-                //if (orgunit != null)
-                //{
-                //    //var manager = employeeService.GetManger(employees.FirstOrDefault());
-                //    var message = conversationInterface.GetOrgUnitMessage(orgunit);
-                //    await context.PostAsync(message);
-                //}
-                //else
-                //{
-                //    var message = conversationInterface.GetNoEmployeesMessage();
-                //    await context.PostAsync(message);
-                //}
+
+        [LuisIntent("HRM.QuerySickLeaveForEmployee")]
+        public async Task QuerySickLeaveForEmployee(IDialogContext context, LuisResult result)
+        {
+
+            var accessToken = await context.GetUserTokenAsync("testclient1");
+
+            if (!string.IsNullOrEmpty(accessToken?.Token))
+            {
+                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
+
+                var tasks = employeeService.GetSickLeaveEmployees(orgUnitName, "1800-01-01", "9999-12-31",accessToken.Token);
+
+                //var attachments = conversationInterface.GetPendingTaskForEmployee(tasks);
+                //var message = context.MakeMessage();
+                //message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                //message.Attachments = attachments;
+
+                //await context.PostAsync(message);
+
 
             }
             else

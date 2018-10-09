@@ -9,7 +9,7 @@ namespace SearchBot.Model
     public class TaskDto
     {
 
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string ProcessId { get; set; }
         public string ShortName { get; set; }
         public string FullName { get; set; }
@@ -33,6 +33,7 @@ namespace SearchBot.Model
         public string CompositeTaskName { get; set; }
         public int ProcessStatusEnum { get; set; }
 
+        public string UserImage { get; set; }
 
     }
 }

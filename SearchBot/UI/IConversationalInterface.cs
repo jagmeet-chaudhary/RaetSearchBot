@@ -15,5 +15,7 @@ namespace SearchBot
         string GetManagerMessage(Employee employee);
 
         string GetOrgUnitMessage(AuditChangeContextDto employee);
+
+        List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks);
     }
 }

@@ -1,18 +1,15 @@
 {
-    "name": "RaetInnovationBoat",
+    "name": "BotFrameworkBot",
     "description": "",
+    "secretKey": "",
     "services": [
         {
-            "type": "endpoint",
             "appId": "1c1c2d32-c26c-47ce-8103-4f42d6828c6f",
+            "id": "6b6ed940-cba1-11e8-b18c-35b95bd96fa5",
+            "type": "endpoint",
             "appPassword": "twCIMPZ753$rxnjzBF39*%)",
             "endpoint": "http://localhost:3978/api/messages",
-            "id": "91192e30-cb32-11e8-8785-bd237cb3d1f4",
             "name": "http://localhost:3978/api/messages"
         }
-    ],
-    "secretKey": "",
-    "version": "2.0",
-    "overrides": null,
-    "path": "C:\\New folder\\SearchBot\\SearchBot.bot"
+    ]
 }

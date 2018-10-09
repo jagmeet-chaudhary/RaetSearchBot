@@ -14,13 +14,28 @@ namespace SearchBot
         {
             var attachments = new List<Attachment>();
             var listActionValues = new List<CardActionValues>();
-            foreach(var employee in employees)
+            foreach (var employee in employees)
             {
                 listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.LastName}, {employee.FirstName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?" });
             }
             attachments.Add(UIHelper.CreateHeroCard("We seem to have multiple people with name 'John'.", "Who exactly are you looking for ?", "", listActionValues));
             return attachments;
 
+        }
+
+        public List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks)
+        {
+            var attachments = new List<Attachment>();
+            var listActionValues = new List<CardActionValues>();
+            foreach (var task in tasks.Items)
+            {
+                listActionValues.Add(new CardActionValues() {ActionType = ActionTypes.OpenUrl, ButtonLabel = $"Click", ButtonValue = $"https://yfo-stark-test.azurewebsites.net/home/{task.ProcessId}/{task.Id}" });
+                //attachments.Add(UIHelper.CreateHeroCard("Multiple task has been assigned to you", "Please click on them", "", listActionValues));
+                attachments.Add(UIHelper.CreateThumbnailCard("Multiple task has been assigned to you", listActionValues, task));
+            }
+
+            //attachments.Add(UIHelper.CreateThumbnailCard());
+            return attachments;
         }
 
         public string GetManagerMessage(Employee employee)

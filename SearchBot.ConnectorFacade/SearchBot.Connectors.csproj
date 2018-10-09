@@ -74,6 +74,9 @@
   <ItemGroup>
     <Compile Include="HRM\HrmApiConnector.cs" />
     <Compile Include="HRM\Model\Employee.cs" />
+    <Compile Include="HRM\Model\OrgUnitDetails.cs" />
+    <Compile Include="HRM\Model\PersonDetails.cs" />
+    <Compile Include="HRM\Model\SickLeave_Employees.cs" />
     <Compile Include="IHrmConnector.cs" />
     <Compile Include="RequestHelper\HttpClientExtensions.cs" />
     <Compile Include="RequestHelper\IRequestHelper.cs" />
