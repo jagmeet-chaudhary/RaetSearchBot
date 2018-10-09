@@ -20,25 +20,27 @@ namespace SearchBot.Connectors.HRM
         }
         public Employee GetManagerForEmployee(Employee employee)
         {
-            return new Employee();
-            
-            
-        }
-
-        
-
+            var searchResult = SearchEmployees(employee).FirstOrDefault();
+            PrepareRequest();
+            var hrmOrganizationUnits = requestHelper.GetAsync<HrmOrganizationalUnits>($"api/employees/{searchResult.Id}/Manager").Result;
+            var manager = hrmOrganizationUnits.Items.FirstOrDefault().Version.Managers.FirstOrDefault();
+            return new Employee()
+            {
+                FirstName = manager.Name,
+                
+            };
+         }
         public List<Employee> SearchEmployees(Employee employeeToSearch)
         {
-            requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = tokenProvider.GetToken();
-            var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
-            requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
-            var hrmEmployees = requestHelper.GetAsync<HrmEmployee>("api/employees").Result;
+
+            PrepareRequest();
+            var hrmEmployees = requestHelper.GetAsync<HrmEmployees>("api/employees").Result;
             var searchResult =new  List<Employee>();
             foreach (var hrmEmployee in hrmEmployees.Items.Where(x => x.FamilyName == employeeToSearch.LastName || x.BirthName == employeeToSearch.FirstName))
             {
                 var employee = new Employee()
                 {
+                    Id = hrmEmployee.Id,
                     FirstName = hrmEmployee.BirthName,
                     LastName = hrmEmployee.FamilyName
                 };
@@ -93,5 +95,13 @@ namespace SearchBot.Connectors.HRM
             return null;
         }
 
+        private void PrepareRequest()
+        {
+            requestHelper.Init("HrmBaseUri");
+            requestHelper.AuthenticationToken = tokenProvider.GetToken();
+            var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
+            requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
+        }
+         
     }
 }

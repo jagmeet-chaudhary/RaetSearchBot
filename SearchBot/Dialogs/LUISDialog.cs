@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SearchBot.Extensions;
 
 namespace SearchBot.Dialogs
 {
@@ -85,7 +86,7 @@ namespace SearchBot.Dialogs
 
             if (employees.Count > 1)
             {
-                var attachments = conversationInterface.GetEmployeeSearchList(employees);
+                var attachments = conversationInterface.GetEmployeeSearchList(employees,context);
                 var message = context.MakeMessage();
                 message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
                 message.Attachments = attachments;
@@ -95,12 +96,12 @@ namespace SearchBot.Dialogs
             else if (employees.Count == 1)
             {
                 var manager = employeeService.GetManger(employees.FirstOrDefault());
-                var message = conversationInterface.GetManagerMessage(manager);
+                var message = conversationInterface.GetManagerMessage(employees.FirstOrDefault(),manager,context);
                 await context.PostAsync(message);
             }
             else
             {
-                var message = conversationInterface.GetNoEmployeesMessage();
+                var message = conversationInterface.GetNoEmployeesMessage(context);
                 await context.PostAsync(message);
             }
 
@@ -129,7 +130,7 @@ namespace SearchBot.Dialogs
                 }
                 else
                 {
-                    var message = conversationInterface.GetNoEmployeesMessage();
+                    var message = conversationInterface.GetNoEmployeesMessage(context);
                     await context.PostAsync(message);
                 }
 

@@ -1,12 +1,19 @@
-﻿using Autofac;
+﻿using System.Diagnostics;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http;
+using Autofac;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Internals;
 using Microsoft.Bot.Connector;
 using SearchBot.Dialogs;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
+using SearchBot.Translator;
+using SearchBot.Utilities;
+using Newtonsoft.Json;
+using SearchBot.Extensions;
+
 
 namespace SearchBot
 {
@@ -25,11 +32,30 @@ namespace SearchBot
         }
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-
+            Trace.TraceInformation($"Incoming Activity is {activity.ToJson()}");
+            //detect language of input text
+            var userLanguage = TranslationHandler.DetectLanguage(activity);
             if (activity.GetActivityType() == ActivityTypes.Message)
             {
+                
                 using (var scope = DialogModule.BeginLifetimeScope(Conversation.Container, activity))
                 {
+                    var botDataStore = scope.Resolve<IBotDataStore<BotData>>();
+                    var key = Address.FromActivity(activity);
+                    var userData = await botDataStore.LoadAsync(key, BotStoreType.BotUserData, CancellationToken.None);
+                    var storedLanguageCode = userData.GetProperty<string>(StringConstants.UserLanguageKey);
+
+                    //update user's language in Azure Table Storage
+                    if (storedLanguageCode != userLanguage)
+                    {
+                        userData.SetProperty(StringConstants.UserLanguageKey, userLanguage);
+                        await botDataStore.SaveAsync(key, BotStoreType.BotUserData, userData, CancellationToken.None);
+                        await botDataStore.FlushAsync(key, CancellationToken.None);
+                    }
+
+                    //translate activity.Text to English before sending to LUIS for intent
+                    activity.Text = TranslationHandler.TranslateTextToDefaultLanguage(activity, userLanguage);
+
                     var dialog = scope.Resolve<LUISDialog>();
                     await Conversation.SendAsync(activity, () => dialog);
                 }
