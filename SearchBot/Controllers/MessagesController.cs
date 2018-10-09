@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ using SearchBot.DependencyInjection;
 using SearchBot.Dialogs;
 using SearchBot.Translator;
 using SearchBot.Utilities;
+using Newtonsoft.Json;
+using SearchBot.Extensions;
 
 namespace SearchBot
 {
@@ -29,6 +32,7 @@ namespace SearchBot
         }
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
+            Trace.TraceInformation($"Incoming Activity is {activity.ToJson()}");
             //detect language of input text
             var userLanguage = TranslationHandler.DetectLanguage(activity);
             if (activity.GetActivityType() == ActivityTypes.Message)

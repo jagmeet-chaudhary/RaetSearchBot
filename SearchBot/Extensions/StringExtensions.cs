@@ -1,6 +1,7 @@
 ﻿using SearchBot.Translator;
 using SearchBot.Utilities;
 using Microsoft.Bot.Builder.Dialogs;
+using Newtonsoft.Json;
 
 namespace SearchBot.Extensions
 {
@@ -13,6 +14,15 @@ namespace SearchBot.Extensions
             text = TranslationHandler.TranslateText(text, StringConstants.DefaultLanguage, userLanguageCode);
 
             return text;
+        }
+        public static string ToJson(this object value)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            return JsonConvert.SerializeObject(value, Formatting.Indented, settings);
         }
     }
 }
