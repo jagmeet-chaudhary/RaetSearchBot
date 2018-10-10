@@ -87,6 +87,9 @@ namespace SearchBot.Connectors.Mocks
             throw new NotImplementedException();
         }
 
-       
+        public Employee GetManagerForEmployee(Employee employee)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -127,7 +127,7 @@ namespace SearchBot.Dialogs
                 if (orgunit != null)
                 {
                    
-                    var message = conversationInterface.GetOrgUnitMessage(orgunit);
+                    var message = conversationInterface.GetOrgUnitMessage(orgunit,context);
                     await context.PostAsync(message);
                 }
                 else
@@ -242,6 +242,17 @@ namespace SearchBot.Dialogs
         //    }
 
         //}
+
+        private GetTokenDialog GetSignInDialog()
+        {
+            string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
+            return new GetTokenDialog(
+               ConnectionName,
+               $"Please sign in to {ConnectionName} to proceed.",
+               "Sign In",
+               2,
+               "Hmm. Something went wrong, let's try again.");
+        }
 
         #endregion
 

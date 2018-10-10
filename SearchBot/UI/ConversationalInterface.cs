@@ -75,7 +75,7 @@ namespace SearchBot
         }
         
 
-        public string GetOrgUnitMessage(AuditChangeContextDto dto)
+        public string GetOrgUnitMessage(AuditChangeContextDto dto, IDialogContext context)
         {
             return $"Last change on {dto.SubjectName} was done by {dto.InitiatorName}".ToUserLocale(context);
         }
