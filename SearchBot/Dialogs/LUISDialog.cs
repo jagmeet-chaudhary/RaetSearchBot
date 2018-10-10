@@ -10,6 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using SearchBot.Extensions;
 using System.Net;
+using SearchBot.Connectors.HRM.Model;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SearchBot.Dialogs
 {
@@ -35,7 +37,7 @@ namespace SearchBot.Dialogs
         [LuisIntent("None")]
         public async Task None(IDialogContext context, LuisResult result)
         {
-           
+
             await context.PostAsync("I'm sorry I don't know what you mean.");
             context.Wait(MessageReceived);
         }
@@ -65,9 +67,11 @@ namespace SearchBot.Dialogs
             }
             else
             {
+                JsonWebToken jsonWebToken = GetInfoToken(accessToken.Token);
+                context.UserData.SetValue("Name", jsonWebToken.Name);
                 context.Call(new GreetingDialog(), Callback);
             }
-                                    
+
         }
 
         private async Task ResumeAfterAuth(IDialogContext context, IAwaitable<object> result)
@@ -82,13 +86,13 @@ namespace SearchBot.Dialogs
         [LuisIntent("HRM.QueryManagerForEmployee")]
         public async Task QueryManagerForEmployee(IDialogContext context, LuisResult result)
         {
-            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity??String.Empty;
-            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity??String.Empty;
+            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity ?? String.Empty;
+            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity ?? String.Empty;
             var employees = employeeService.GetEmployeesByName(firstName, lastName);
 
             if (employees.Count > 1)
             {
-                var attachments = conversationInterface.GetEmployeeSearchList(employees,context);
+                var attachments = conversationInterface.GetEmployeeSearchList(employees, context);
                 var message = context.MakeMessage();
                 message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
                 message.Attachments = attachments;
@@ -98,7 +102,7 @@ namespace SearchBot.Dialogs
             else if (employees.Count == 1)
             {
                 var manager = employeeService.GetManger(employees.FirstOrDefault());
-                var message = conversationInterface.GetManagerMessage(employees.FirstOrDefault(),manager,context);
+                var message = conversationInterface.GetManagerMessage(employees.FirstOrDefault(), manager, context);
                 await context.PostAsync(message);
             }
             else
@@ -126,8 +130,8 @@ namespace SearchBot.Dialogs
 
                 if (orgunit != null)
                 {
-                   
-                    var message = conversationInterface.GetOrgUnitMessage(orgunit,context);
+
+                    var message = conversationInterface.GetOrgUnitMessage(orgunit, context);
                     await context.PostAsync(message);
                 }
                 else
@@ -168,8 +172,7 @@ namespace SearchBot.Dialogs
             }
             else
             {
-                context.Call(GetSignInDialog(), this.GetToken);
-
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
             }
 
         }
@@ -222,7 +225,7 @@ namespace SearchBot.Dialogs
         }
         private async Task SendOAuthCardAsync(IDialogContext context, Activity activity)
         {
-            
+
             string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
             var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In").ConfigureAwait(false);
             await context.PostAsync(reply);
@@ -243,15 +246,20 @@ namespace SearchBot.Dialogs
 
         //}
 
-        private GetTokenDialog GetSignInDialog()
+        private JsonWebToken GetInfoToken(string token)
         {
-            string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
-            return new GetTokenDialog(
-               ConnectionName,
-               $"Please sign in to {ConnectionName} to proceed.",
-               "Sign In",
-               2,
-               "Hmm. Something went wrong, let's try again.");
+            JwtSecurityToken jwtSecurityToken = GetSecurityToken(token);
+
+            JsonWebTokenAssembler jsonWebTokenAssembler = new JsonWebTokenAssembler();
+            var jsonWebToken = jsonWebTokenAssembler.ListOfClaimsToJsonWebToken(jwtSecurityToken.Claims);
+            return jsonWebToken;
+        }
+
+        private JwtSecurityToken GetSecurityToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            return tokenS;
         }
 
         #endregion
