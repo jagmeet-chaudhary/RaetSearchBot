@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SearchBot.Extensions;
+using System.Net;
 
 namespace SearchBot.Dialogs
 {
@@ -24,18 +25,20 @@ namespace SearchBot.Dialogs
             this.employeeService = employeeService;
             this.conversationInterface = conversationInterface;
         }
-        [LuisIntent("")]
-        public async Task None(IDialogContext context, LuisResult result)
+        [LuisIntent("SignOut")]
+        public async Task LogOut(IDialogContext context, LuisResult result)
         {
-
-
             await Signout(context);
-
-
             //await context.PostAsync("I'm sorry I don't know what you mean.");
             context.Wait(MessageReceived);
         }
-
+        [LuisIntent("None")]
+        public async Task None(IDialogContext context, LuisResult result)
+        {
+           
+            await context.PostAsync("I'm sorry I don't know what you mean.");
+            context.Wait(MessageReceived);
+        }
         [LuisIntent("Signin")]
         public async Task SignIn(IDialogContext context, LuisResult result)
         {
@@ -43,39 +46,31 @@ namespace SearchBot.Dialogs
 
             if (string.IsNullOrEmpty(accessToken?.Token))
             {
-
-                context.Call(GetSignInDialog(), this.GetToken);
-
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
+            }
+            else
+            {
+                await context.PostAsync("You're already logged in.");
             }
         }
 
         [LuisIntent("Greetings")]
         public async Task Greeting(IDialogContext context, LuisResult result)
         {
-
-
-            var accessToken = await context.GetUserTokenAsync("testclient1");
+            var accessToken = await context.GetUserTokenAsync("testclient1").ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(accessToken?.Token))
             {
-
-                await context.Forward(GetSignInDialog(), this.ResumeAfterAuth, context.MakeMessage(), CancellationToken.None);
-
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
             }
-            await context.PostAsync("You're inside");
-
-            //context.Call(new GreetingDialog(), Callback);
-
-
+            else
+            {
+                context.Call(new GreetingDialog(), Callback);
+            }
+            
+            
         }
 
-        private async Task ResumeAfterAuth(IDialogContext context, IAwaitable<object> result)
-        {
-            var message = await result;
-
-            await context.PostAsync(context.MakeMessage());
-
-        }
 
         [LuisIntent("HRM.QueryManagerForEmployee")]
         public async Task QueryManagerForEmployee(IDialogContext context, LuisResult result)
@@ -137,7 +132,7 @@ namespace SearchBot.Dialogs
             }
             else
             {
-                context.Call(GetSignInDialog(), this.GetToken);
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
 
             }
 
@@ -155,24 +150,10 @@ namespace SearchBot.Dialogs
                // var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
 
                 var orgunit = employeeService.GetPendingTaskForEmployee();
-
-
-                //if (orgunit != null)
-                //{
-                //    //var manager = employeeService.GetManger(employees.FirstOrDefault());
-                //    var message = conversationInterface.GetOrgUnitMessage(orgunit);
-                //    await context.PostAsync(message);
-                //}
-                //else
-                //{
-                //    var message = conversationInterface.GetNoEmployeesMessage();
-                //    await context.PostAsync(message);
-                //}
-
             }
             else
             {
-                context.Call(GetSignInDialog(), this.GetToken);
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
 
             }
 
@@ -192,27 +173,35 @@ namespace SearchBot.Dialogs
 
             var message = await tokenResponse;
             context.PrivateConversationData.SetValue("Token", message?.Token);
-
-
-            await context.PostAsync("You're inside");
-
         }
 
         private async Task Callback(IDialogContext context, IAwaitable<object> result)
         {
             context.Wait(MessageReceived);
         }
-
-        private GetTokenDialog GetSignInDialog()
+        private async Task SendOAuthCardAsync(IDialogContext context, Activity activity)
         {
+            
             string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
-            return new GetTokenDialog(
-               ConnectionName,
-               $"Please sign in to {ConnectionName} to proceed.",
-               "Sign In",
-               2,
-               "Hmm. Something went wrong, let's try again.");
+            var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In").ConfigureAwait(false);
+            await context.PostAsync(reply);
+
+            //context.Wait(WaitForToken);
         }
+
+        //private async Task WaitForToken(IDialogContext context, IAwaitable<object> result)
+        //{
+        //    var activity = context.Activity as Activity;
+        //    if (activity.Name == "signin/verifyState")
+        //    {
+        //        // We do this so that we can pass handling to the right logic in the dialog. You can
+        //        // set this to be whatever string you want.
+        //        activity.Text = "loginComplete";
+        //        await Conversation.SendAsync(activity, () => new Dialogs.RootDialog());
+        //    }
+
+        //}
+
         #endregion
 
 

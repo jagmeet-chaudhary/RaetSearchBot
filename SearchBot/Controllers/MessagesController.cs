@@ -51,7 +51,7 @@ namespace SearchBot
                         userData.SetProperty(StringConstants.UserLanguageKey, userLanguage);
                         await botDataStore.SaveAsync(key, BotStoreType.BotUserData, userData, CancellationToken.None);
                         await botDataStore.FlushAsync(key, CancellationToken.None);
-                    }
+                    }   
 
                     //translate activity.Text to English before sending to LUIS for intent
                     activity.Text = TranslationHandler.TranslateTextToDefaultLanguage(activity, userLanguage);
