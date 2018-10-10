@@ -13,7 +13,8 @@ namespace SearchBot
     {
         List<Attachment> GetEmployeeSearchList(List<Employee> employees,IDialogContext context);
         string GetNoEmployeesMessage(IDialogContext context);
+        string GetNoAuditChangeMessage(IDialogContext context);
         string GetManagerMessage(Employee employee,Employee manager,IDialogContext context);
-        string GetOrgUnitMessage(AuditChangeContextDto employee);
+        string GetOrgUnitMessage(AuditChangeContextDto dto, IDialogContext context);
     }
 }

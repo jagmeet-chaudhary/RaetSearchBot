@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SearchBot.Common;
 using SearchBot.Model;
 using SearchBot.Connectors.HRM.Model;
+using System.Linq.Expressions;
 
 namespace SearchBot.Connectors.HRM
 {
@@ -22,8 +23,9 @@ namespace SearchBot.Connectors.HRM
         {
             var searchResult = SearchEmployees(employee).FirstOrDefault();
             PrepareRequest();
-            var hrmOrganizationUnits = requestHelper.GetAsync<HrmOrganizationalUnits>($"api/employees/{searchResult.Id}/Manager").Result;
-            var manager = hrmOrganizationUnits.Items.FirstOrDefault().Version.Managers.FirstOrDefault();
+            var result = requestHelper.GetWithResponseAsync($"/api/organizationalunits").Result;
+            var hrmOrganizationUnits = requestHelper.GetAsync<List<HrmOrganizationalUnit>>($"/api/organizationalunits").Result;
+            var manager = hrmOrganizationUnits.FirstOrDefault(x => x.Id == employee.OrgUnitId).Version.Managers.FirstOrDefault();
             return new Employee()
             {
                 FirstName = manager.Name,
@@ -36,16 +38,34 @@ namespace SearchBot.Connectors.HRM
             PrepareRequest();
             var hrmEmployees = requestHelper.GetAsync<HrmEmployees>("api/employees").Result;
             var searchResult =new  List<Employee>();
-            foreach (var hrmEmployee in hrmEmployees.Items.Where(x => x.FamilyName == employeeToSearch.LastName || x.BirthName == employeeToSearch.FirstName))
+            Predicate<Person> p = x=>false;
+            if (!String.IsNullOrWhiteSpace(employeeToSearch.FirstName) && !String.IsNullOrWhiteSpace(employeeToSearch.LastName))
+            {
+                p = x => x.FamilyName?.ToUpper() == employeeToSearch?.LastName.ToUpper() && x.BirthName?.ToUpper() == employeeToSearch.FirstName.ToUpper();
+            }
+            else if(!String.IsNullOrWhiteSpace(employeeToSearch.FirstName))
+            {
+                 p = x =>  x.BirthName?.ToUpper() == employeeToSearch.FirstName.ToUpper();
+            }
+            else if(!String.IsNullOrWhiteSpace(employeeToSearch.LastName))
+            {
+                 p = x => x.FamilyName?.ToUpper() == employeeToSearch?.LastName.ToUpper() || x.GivenName?.ToUpper() == employeeToSearch.LastName.ToUpper();
+            }
+            
+            var filteredResults = hrmEmployees.Items.Where(x=>p(x));
+
+            
+            foreach (var hrmEmployee in filteredResults)
             {
                 var employee = new Employee()
                 {
+                    OrgUnitId = hrmEmployee.Contract.OrganizationalUnit.Id,
                     Id = hrmEmployee.Id,
                     FirstName = hrmEmployee.BirthName,
                     LastName = hrmEmployee.FamilyName
                 };
                 searchResult.Add(employee);
-            }
+            };
 
             return searchResult;
         }

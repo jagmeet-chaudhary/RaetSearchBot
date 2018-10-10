@@ -80,8 +80,8 @@ namespace SearchBot.Dialogs
         [LuisIntent("HRM.QueryManagerForEmployee")]
         public async Task QueryManagerForEmployee(IDialogContext context, LuisResult result)
         {
-            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity;
-            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity;
+            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity??String.Empty;
+            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity??String.Empty;
             var employees = employeeService.GetEmployeesByName(firstName, lastName);
 
             if (employees.Count > 1)
@@ -125,12 +125,12 @@ namespace SearchBot.Dialogs
                 if (orgunit != null)
                 {
                     //var manager = employeeService.GetManger(employees.FirstOrDefault());
-                    var message = conversationInterface.GetOrgUnitMessage(orgunit);
+                    var message = conversationInterface.GetOrgUnitMessage(orgunit,context);
                     await context.PostAsync(message);
                 }
                 else
                 {
-                    var message = conversationInterface.GetNoEmployeesMessage(context);
+                    var message = conversationInterface.GetNoAuditChangeMessage(context);
                     await context.PostAsync(message);
                 }
 

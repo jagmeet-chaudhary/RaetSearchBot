@@ -20,7 +20,7 @@ namespace SearchBot
             {
                 listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context) });
             }
-            attachments.Add(UIHelper.CreateHeroCard("We seem to have multiple people with name 'John'.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
+            attachments.Add(UIHelper.CreateHeroCard("We found multiple people for your search.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
             return attachments;
 
         }
@@ -30,14 +30,19 @@ namespace SearchBot
             return $"Manager for {employee.FirstName} {employee.LastName} is {manager.FirstName} {manager.LastName}".ToUserLocale(context);
         }
 
+        public string GetNoAuditChangeMessage(IDialogContext context)
+        {
+            return "We did not find any audit changes for this organizational unit.".ToUserLocale(context);
+        }
+
         public string GetNoEmployeesMessage(IDialogContext context)
         {
             return "Sorry, I could not find any employee with this name.".ToUserLocale(context);
         }
 
-        public string GetOrgUnitMessage(AuditChangeContextDto dto)
+        public string GetOrgUnitMessage(AuditChangeContextDto dto,IDialogContext context)
         {
-            return $"Change made on {dto.SubjectName} by {dto.InitiatorName}";
+            return $"Last change on {dto.SubjectName} was done by {dto.InitiatorName}".ToUserLocale(context);
         }
     }
 }
