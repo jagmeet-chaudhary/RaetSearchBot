@@ -54,9 +54,8 @@ namespace SearchBot.Connectors.HRM
         public AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token)
         {
             requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = tokenProvider.GetToken();
-            var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
-            requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
+            requestHelper.AuthenticationToken = token;
+
             try
             {
                 string testurl = "api/auditreader/odm/?$count=true&$top=25&$skip=0&$filter=EntityName%20eq%20%27HRM_OrganizationalUnit%27%20and%20ChangedDate%20ge%202016-07-31T18:30:00Z%20and%20ChangedDate%20le%202018-09-19T18:29:59Z&$orderby=ChangedDate%20desc";
@@ -75,8 +74,7 @@ namespace SearchBot.Connectors.HRM
         {
             requestHelper.Init("WorkFlowBaseUri");
             requestHelper.AuthenticationToken = token;
-            //var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
-            //requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
+
             try
             {
                 string testurl = "api/tasks/Pending?$count=true&$top=5&$skip=0";
@@ -88,8 +86,6 @@ namespace SearchBot.Connectors.HRM
                 Console.WriteLine("the test");
             }
 
-
-
             return null;
         }
 
@@ -97,8 +93,7 @@ namespace SearchBot.Connectors.HRM
         {
             requestHelper.Init("UIApiUrl");
             requestHelper.AuthenticationToken = token;
-            //var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
-            //requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
+
             try
             {
                 string apiUrl = $"api/photos/person?externalId={externalId}";
@@ -186,26 +181,6 @@ namespace SearchBot.Connectors.HRM
             requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
         }
          
-        public string GetOrgUnitIdByPassingName(string OrgUnitName, string token)
-        {
-            requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = token;
-
-            try
-            {
-                //string apiUrl = $"api/organizationalunits";
-                string apiUrl = $"api/sickleaves/organizationalunits/27/sickleaves?startDate='2010-01-01'&endDate='2020-01-01'";
-                var details = requestHelper.GetAsync<OrgUnitDetails>(apiUrl).Result;
-                //var orgUnitId = details.Property1.FirstOrDefault(x => x.Metadata.Where(z => z.FullName.ToLower() == OrgUnitName));
-                return "";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Failed in getting the user Image");
-            }
-
-
-            return null;
-        }
+     
     }
 }

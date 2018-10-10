@@ -11,7 +11,7 @@ namespace SearchBot.Connectors
 {
     public interface IHrmConnector
     {
-        List<Employee> SearchEmployees(Employee employee, string token);
+        List<Employee> SearchEmployees(Employee employee);
         Employee GetManagerForEmployee(Employee employee, string token);
 
         AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token);
@@ -21,7 +21,7 @@ namespace SearchBot.Connectors
         PersonDetails GetUserDetails(string externalId, string token);
 
         IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token);
-        string GetOrgUnitIdByPassingName(string OrgUnitName, string token);
+       
 
     }
 }

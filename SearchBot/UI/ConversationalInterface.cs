@@ -74,5 +74,10 @@ namespace SearchBot
         {
             return $"Change made on {dto.SubjectName} by {dto.InitiatorName}";
         }
+
+        public string GetManagerMessage(Employee employee)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

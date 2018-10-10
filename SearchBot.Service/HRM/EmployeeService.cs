@@ -22,7 +22,7 @@ namespace SearchBot.Service.HRM
 
         public List<Employee> GetEmployeesByName(string firstName, string lastName, string token)
         {
-            var employees = hrmConnector.SearchEmployees(new Employee { FirstName = firstName, LastName = lastName }, token);
+            var employees = hrmConnector.SearchEmployees(new Employee { FirstName = firstName, LastName = lastName });
             return employees;
         }
 
@@ -36,18 +36,13 @@ namespace SearchBot.Service.HRM
         public AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token)
         {
 
-            //HrmApiConnector h = new HrmApiConnector(new RequestHelper(), new TokenProvider());
-
             var orgunit = hrmConnector.GetOrgUnitByName(orgUnitName, token);
-            //var result = h.GetOrgUnitByName(orgUnitName);
-            // var orgunit = hrmConnector.GetOrgUnitByName(orgUnitName);
+
             return orgunit;
         }
 
         public ResultTaskDto GetPendingTaskForEmployee(string token)
         {
-
-            //HrmApiConnector h = new HrmApiConnector(new RequestHelper(), new TokenProvider());
 
             var pendingTask = hrmConnector.GetPendingTaskForEmployee(token);
 
@@ -63,15 +58,7 @@ namespace SearchBot.Service.HRM
         public IList<SickLeave_Employee> GetSickLeaveEmployees(string orgunitname, string from, string to, string token)
         {            
 
-            //var OrgUnit = hrmConnector.GetOrgUnitIdByPassingName(orgunitname, token);
-
             var sickLeave_Employees = hrmConnector.GetSickLeaveEmployees(from,to,token);
-
-            //foreach (var task in pendingTask)
-            //{
-            //    task.UserImage = hrmConnector.GetUserImage(task.SubjectReferenceId, token);
-            //    task.ProcessSubjectFullName = hrmConnector.GetUserDetails(task.SubjectReferenceId, token)?.DisplayName;
-            //}
 
             return sickLeave_Employees;
         }
