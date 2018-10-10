@@ -20,8 +20,7 @@ namespace SearchBot.Connectors
         string GetUserImage(string externalId, string token);
         PersonDetails GetUserDetails(string externalId, string token);
 
-        SickLeave_Employees GetSickLeaveEmployees(string OrgUnitId, string from, string to, string token);
-
+        IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token);
         string GetOrgUnitIdByPassingName(string OrgUnitName, string token);
 
     }

@@ -61,9 +61,9 @@ namespace SearchBot.Dialogs
                 await context.Forward(GetSignInDialog(), this.ResumeAfterAuth, context.MakeMessage(), CancellationToken.None);
 
             }
-            await context.PostAsync("You're inside");
+            //await context.PostAsync("You're inside");
 
-            //context.Call(new GreetingDialog(), Callback);
+            context.Call(new GreetingDialog(), Callback);
 
 
         }
@@ -87,7 +87,7 @@ namespace SearchBot.Dialogs
 
             var employees = employeeService.GetEmployeesByName(firstName, lastName, accessToken.Token);
 
-                if (employees.Count > 1)
+            if (employees.Count > 1)
             {
                 var attachments = conversationInterface.GetEmployeeSearchList(employees);
                 var message = context.MakeMessage();
@@ -98,7 +98,7 @@ namespace SearchBot.Dialogs
             }
             else if (employees.Count == 1)
             {
-                var manager = employeeService.GetManger(employees.FirstOrDefault(),accessToken.Token);
+                var manager = employeeService.GetManger(employees.FirstOrDefault(), accessToken.Token);
                 var message = conversationInterface.GetManagerMessage(manager);
                 await context.PostAsync(message);
             }
@@ -127,13 +127,13 @@ namespace SearchBot.Dialogs
 
                 if (orgunit != null)
                 {
-                    //var manager = employeeService.GetManger(employees.FirstOrDefault());
+                   
                     var message = conversationInterface.GetOrgUnitMessage(orgunit);
                     await context.PostAsync(message);
                 }
                 else
                 {
-                    var message = conversationInterface.GetNoEmployeesMessage();
+                    var message = conversationInterface.GetNoOrgUnitMessage(orgUnitName);
                     await context.PostAsync(message);
                 }
 
@@ -154,7 +154,7 @@ namespace SearchBot.Dialogs
             var accessToken = await context.GetUserTokenAsync("testclient1");
 
             if (!string.IsNullOrEmpty(accessToken?.Token))
-            {               
+            {
 
                 var tasks = employeeService.GetPendingTaskForEmployee(accessToken.Token);
 
@@ -164,7 +164,7 @@ namespace SearchBot.Dialogs
                 message.Attachments = attachments;
 
                 await context.PostAsync(message);
-                
+
 
             }
             else
@@ -187,14 +187,9 @@ namespace SearchBot.Dialogs
             {
                 var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
 
-                var tasks = employeeService.GetSickLeaveEmployees(orgUnitName, "1800-01-01", "9999-12-31",accessToken.Token);
+                var sickLeave_Employees = employeeService.GetSickLeaveEmployees(orgUnitName, "1800-01-01", "9999-12-31", accessToken.Token);
 
-                //var attachments = conversationInterface.GetPendingTaskForEmployee(tasks);
-                //var message = context.MakeMessage();
-                //message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                //message.Attachments = attachments;
-
-                //await context.PostAsync(message);
+                await context.PostAsync(conversationInterface.GetleavesOfEmployees(sickLeave_Employees));
 
 
             }

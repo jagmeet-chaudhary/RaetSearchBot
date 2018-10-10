@@ -14,7 +14,6 @@ namespace SearchBot.Service.Interfaces
 
         ResultTaskDto GetPendingTaskForEmployee(string token);
 
-        SickLeave_Employees GetSickLeaveEmployees(string OrgUnitName, string from, string to, string token);
-
+        IList<SickLeave_Employee> GetSickLeaveEmployees(string orgunitname, string from, string to, string token);
     }
 }

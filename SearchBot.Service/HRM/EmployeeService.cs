@@ -60,12 +60,12 @@ namespace SearchBot.Service.HRM
             return pendingTask;
         }
 
-        public SickLeave_Employees GetSickLeaveEmployees(string orgunitname, string from, string to, string token)
+        public IList<SickLeave_Employee> GetSickLeaveEmployees(string orgunitname, string from, string to, string token)
         {            
 
-            var OrgUnit = hrmConnector.GetOrgUnitIdByPassingName(orgunitname, token);
+            //var OrgUnit = hrmConnector.GetOrgUnitIdByPassingName(orgunitname, token);
 
-            var pendingTask = hrmConnector.GetSickLeaveEmployees(OrgUnit, from,to,token);
+            var sickLeave_Employees = hrmConnector.GetSickLeaveEmployees(from,to,token);
 
             //foreach (var task in pendingTask)
             //{
@@ -73,7 +73,7 @@ namespace SearchBot.Service.HRM
             //    task.ProcessSubjectFullName = hrmConnector.GetUserDetails(task.SubjectReferenceId, token)?.DisplayName;
             //}
 
-            return pendingTask;
+            return sickLeave_Employees;
         }
 
     }

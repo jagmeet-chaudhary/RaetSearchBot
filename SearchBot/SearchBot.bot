@@ -1,11 +1,11 @@
 {
-    "name": "BotFrameworkBot",
+    "name": "WithSickNessBot",
     "description": "",
     "secretKey": "",
     "services": [
         {
             "appId": "1c1c2d32-c26c-47ce-8103-4f42d6828c6f",
-            "id": "6b6ed940-cba1-11e8-b18c-35b95bd96fa5",
+            "id": "8a4111c0-cc6a-11e8-af4e-55bf133bc82d",
             "type": "endpoint",
             "appPassword": "twCIMPZ753$rxnjzBF39*%)",
             "endpoint": "http://localhost:3978/api/messages",

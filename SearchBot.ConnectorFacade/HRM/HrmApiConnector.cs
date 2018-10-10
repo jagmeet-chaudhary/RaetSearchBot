@@ -53,7 +53,7 @@ namespace SearchBot.Connectors.HRM
             requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
             try
             {
-                string testurl = "api/auditreader/odm/?$count=true&$top=25&$skip=0&$filter=EntityName%20eq%20%27HRM_OrganizationalUnit%27%20and%20ChangedDate%20ge%202018-07-31T18:30:00Z%20and%20ChangedDate%20le%202018-09-19T18:29:59Z&$orderby=ChangedDate%20desc";
+                string testurl = "api/auditreader/odm/?$count=true&$top=25&$skip=0&$filter=EntityName%20eq%20%27HRM_OrganizationalUnit%27%20and%20ChangedDate%20ge%202016-07-31T18:30:00Z%20and%20ChangedDate%20le%202018-09-19T18:29:59Z&$orderby=ChangedDate%20desc";
                 var hrmEmployees = requestHelper.GetAsync<OdataAuditContextDto>(testurl).Result;
                 return hrmEmployees.Items.FirstOrDefault(s => s.SubjectName.ToLower() == orgUnitName);
             }
@@ -133,22 +133,41 @@ namespace SearchBot.Connectors.HRM
             throw new NotImplementedException();
         }
 
-        public SickLeave_Employees GetSickLeaveEmployees(string OrgUnitId,string from,string to, string token)
+        public IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token)
         {
             requestHelper.Init("HrmBaseUri");
             requestHelper.AuthenticationToken = token;
 
             try
             {
-                string apiUrl = $"api/sickleaves/organizationalunits/{OrgUnitId}/sickleaves?startDate={from}&endDate={to}";
-                var details = requestHelper.GetAsync<SickLeave_Employees>(apiUrl).Result;
+                string apiUrl = $"api/sickleaves/organizationalunits";
+                var SickLeave_orgUnits = requestHelper.GetAsync<IList<SickLeave_orgUnit>>(apiUrl).Result;
+
+                var orgUnit = SickLeave_orgUnits != null && SickLeave_orgUnits.Count() > 0 ? SickLeave_orgUnits[0] : null;
+
+                if (orgUnit == null)
+                    return null;
+
+                string allEmployeesURI = $"/api/sickleaves/employees?orgUnitId={orgUnit.Id}";
+                var sickLeave_AllEmployees = requestHelper.GetAsync<IList<SickLeave_AllEmployee>>(allEmployeesURI).Result;
+
+
+                string leaveUri = $"api/sickleaves/organizationalunits/{orgUnit.Id}/sickleaves?startDate={from}&endDate={to}";
+                var details = requestHelper.GetAsync<IList<SickLeave_Employee>>(leaveUri).Result;
+
+                foreach (var employee in details)
+                {
+                    employee.Displayname = sickLeave_AllEmployees.FirstOrDefault(x => x.ContractId == employee.ContractId)?.DisplayName;
+                }
+                
+
                 return details;
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Failed in getting the user Image");
             }
-
 
             return null;
         }
@@ -160,7 +179,8 @@ namespace SearchBot.Connectors.HRM
 
             try
             {
-                string apiUrl = $"api/organizationalunits";
+                //string apiUrl = $"api/organizationalunits";
+                string apiUrl = $"api/sickleaves/organizationalunits/27/sickleaves?startDate='2010-01-01'&endDate='2020-01-01'";
                 var details = requestHelper.GetAsync<OrgUnitDetails>(apiUrl).Result;
                 //var orgUnitId = details.Property1.FirstOrDefault(x => x.Metadata.Where(z => z.FullName.ToLower() == OrgUnitName));
                 return "";

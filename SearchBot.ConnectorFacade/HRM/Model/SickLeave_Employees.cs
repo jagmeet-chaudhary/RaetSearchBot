@@ -15,11 +15,12 @@ namespace SearchBot.Connectors.HRM.Model
 
     public class SickLeave_Employee
     {
-        public int Id { get; set; }
-        public int ContractId { get; set; }
+        public string Id { get; set; }
+        public string Displayname { get; set; }
+        public string ContractId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int SickLeaveTypeId { get; set; }
+        public string SickLeaveTypeId { get; set; }
         public Sickleavetype SickLeaveType { get; set; }
         public string SickLeaveStatus { get; set; }
     }
