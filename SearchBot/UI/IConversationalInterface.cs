@@ -12,16 +12,14 @@ namespace SearchBot
 {
     public interface IQueryManagerConversationInterface
     {
-
-        string GetNoOrgUnitMessage(string orgUnitName);
-        string GetManagerMessage(Employee employee);
-
         List<Attachment> GetEmployeeSearchList(List<Employee> employees,IDialogContext context);
         string GetNoEmployeesMessage(IDialogContext context);
+        string GetNoAuditChangeMessage(IDialogContext context);
         string GetManagerMessage(Employee employee,Employee manager,IDialogContext context);
-        string GetOrgUnitMessage(AuditChangeContextDto employee);
-
         List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks);
+        string GetNoOrgUnitMessage(string orgUnitName);
+        string GetOrgUnitMessage(AuditChangeContextDto dto, IDialogContext context);
+
         string GetleavesOfEmployees(IList<SickLeave_Employee> sickLeave_Employees);
     }
 }
