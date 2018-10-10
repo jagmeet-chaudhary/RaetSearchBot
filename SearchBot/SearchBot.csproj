@@ -207,6 +207,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SearchBot.ConnectorFacade\SearchBot.Connectors.csproj">
+      <Project>{DF2E88CD-0FCA-4EE6-80A8-DDC9F92B910C}</Project>
+      <Name>SearchBot.Connectors</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SearchBot.Model\SearchBot.Model.csproj">
       <Project>{438a621f-e145-4059-b0f4-2dee78d478cb}</Project>
       <Name>SearchBot.Model</Name>

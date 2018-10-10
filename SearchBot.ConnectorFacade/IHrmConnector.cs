@@ -1,4 +1,5 @@
 ﻿
+using SearchBot.Connectors.HRM.Model;
 using SearchBot.Model;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,17 @@ namespace SearchBot.Connectors
 {
     public interface IHrmConnector
     {
-        List<Employee> SearchEmployees(Employee employee);
-        Employee GetManagerForEmployee(Employee employee);
+        List<Employee> SearchEmployees(Employee employee, string token);
+        Employee GetManagerForEmployee(Employee employee, string token);
 
-        AuditChangeContextDto GetOrgUnitByName(string orgUnitName);
-        ResultTaskDto GetPendingTaskForEmployee() ;
+        AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token);
+        ResultTaskDto GetPendingTaskForEmployee(string token);
+
+        string GetUserImage(string externalId, string token);
+        PersonDetails GetUserDetails(string externalId, string token);
+
+        IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token);
+        string GetOrgUnitIdByPassingName(string OrgUnitName, string token);
+
     }
 }
