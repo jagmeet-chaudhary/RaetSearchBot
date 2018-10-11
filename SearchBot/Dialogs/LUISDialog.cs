@@ -183,7 +183,7 @@ namespace SearchBot.Dialogs
         {
             
             string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
-            var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In").ConfigureAwait(false);
+            var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In",true).ConfigureAwait(false);
             await context.PostAsync(reply);
 
             //context.Wait(WaitForToken);

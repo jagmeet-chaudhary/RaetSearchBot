@@ -46,7 +46,10 @@ namespace SearchBot.DependencyInjection
                  .AsSelf()
                  .InstancePerDependency();
 
-
+            //builder
+            //      .RegisterType<CustomActivityMapper>()
+            //      .AsImplementedInterfaces()
+            //      .SingleInstance();
 
         }
 

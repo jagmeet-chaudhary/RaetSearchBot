@@ -13,7 +13,8 @@ using SearchBot.Translator;
 using SearchBot.Utilities;
 using Newtonsoft.Json;
 using SearchBot.Extensions;
-
+using Newtonsoft.Json.Linq;
+using System.Configuration;
 
 namespace SearchBot
 {
@@ -73,9 +74,9 @@ namespace SearchBot
             var response = Request.CreateResponse(HttpStatusCode.OK, "Tested");
             return response;
         }
-        private Activity HandleSystemMessage(Activity message)
+        private Activity HandleSystemMessage(Activity activity)
         {
-            string messageType = message.GetActivityType();
+            string messageType = activity.GetActivityType();
             if (messageType == ActivityTypes.DeleteUserData)
             {
                 // Implement user deletion here
@@ -98,6 +99,34 @@ namespace SearchBot
             }
             else if (messageType == ActivityTypes.Ping)
             {
+            }
+            else if(messageType == ActivityTypes.Invoke)
+            {
+                Trace.TraceInformation($"Inside invoke with activity name {activity.Name}");
+                if (activity.Name == "signin/verifyState")
+                {
+                    // We do this so that we can pass handling to the right logic in the dialog. You can
+                    // set this to be whatever string you want.
+                    activity.Text = "loginComplete";
+                    // Handle login completion event.
+                    JObject ctx = activity.Value as JObject;
+
+                    if (ctx != null)
+                    {
+                        string code = ctx["state"].ToString();
+                        string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
+                        var oauthClient = activity.GetOAuthClient();
+                        var token = oauthClient.OAuthApi.GetUserTokenAsync(activity.From.Id, ConnectionName, magicCode: code).Result;
+                        //if (token != null)
+                        //{
+                           
+                        //    // Make whatever API calls here you want
+                        //    context.PostAsync($"Success! You are now signed in.");
+                        //}
+                    }
+
+
+                }
             }
 
             return null;

@@ -18,9 +18,9 @@ namespace SearchBot
             var listActionValues = new List<CardActionValues>();
             foreach(var employee in employees)
             {
-                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context) });
+                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context)});
             }
-            attachments.Add(UIHelper.CreateHeroCard("We found multiple people for your search.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
+            attachments.Add(UIHelper.CreateHeroCard("I can see there are more than one person with the name you provided.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
             return attachments;
 
         }
