@@ -20,16 +20,16 @@ namespace SearchBot.Service.HRM
 
 
 
-        public List<Employee> GetEmployeesByName(string firstName, string lastName)
+        public List<Employee> GetEmployeesByName(string firstName, string lastName,string token)
         {
-            var employees = hrmConnector.SearchEmployees(new Employee { FirstName = firstName, LastName = lastName });
+            var employees = hrmConnector.SearchEmployees(new Employee { FirstName = firstName, LastName = lastName },token);
             return employees;
         }
 
-        public Employee GetManger(Employee employee)
+        public Employee GetManger(Employee employee,string token)
         {
 
-            var manager = hrmConnector.GetManagerForEmployee(employee);
+            var manager = hrmConnector.GetManagerForEmployee(employee,token);
             return manager;
         }
 

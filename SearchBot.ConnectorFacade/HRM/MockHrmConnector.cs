@@ -13,7 +13,7 @@ namespace SearchBot.Connectors.Mocks
 {
     public class MockHrmConnector : IHrmConnector
     {
-        public List<Employee> SearchEmployees(Employee employee)
+        public List<Employee> SearchEmployees(Employee employee,string token)
         {
 
             var employees =  new List<Employee>()
@@ -87,9 +87,6 @@ namespace SearchBot.Connectors.Mocks
             throw new NotImplementedException();
         }
 
-        public Employee GetManagerForEmployee(Employee employee)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }

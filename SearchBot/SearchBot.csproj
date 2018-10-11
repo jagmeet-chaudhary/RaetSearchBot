@@ -177,6 +177,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="App_Start\DependencyInjection\SearchBotModule.cs" />
+    <Compile Include="Dialogs\CustomActivityMapper.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Translator\AzureAuthToken.cs" />
     <Compile Include="Translator\TranslationHandler.cs" />

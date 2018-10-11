@@ -15,7 +15,7 @@ namespace SearchBot.Console
         static void Main(string[] args)
         {
             HrmApiConnector h = new HrmApiConnector(new RequestHelper(), new TokenProvider());
-            var result = h.SearchEmployees(new Employee() { FirstName = "Michelle" });
+            var result = h.SearchEmployees(new Employee() { FirstName = "Michelle" },"dummy");
 
         }
     }

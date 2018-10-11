@@ -20,9 +20,9 @@ namespace SearchBot
             var listActionValues = new List<CardActionValues>();
             foreach(var employee in employees)
             {
-                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context) });
+                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context)});
             }
-            attachments.Add(UIHelper.CreateHeroCard("We found multiple people for your search.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
+            attachments.Add(UIHelper.CreateHeroCard("I can see there are more than one person with the name you provided.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
             return attachments;
 
         }
@@ -33,6 +33,7 @@ namespace SearchBot
             var listActionValues = new List<CardActionValues>();
             foreach (var task in tasks.Items)
             {
+                //todo : remove hardcoding of url
                 listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.OpenUrl, ButtonLabel = $"Click", ButtonValue = $"https://yfo-stark-test.azurewebsites.net/home/{task.ProcessId}/{task.Id}" });
                 //attachments.Add(UIHelper.CreateHeroCard("Multiple task has been assigned to you", "Please click on them", "", listActionValues));
                 attachments.Add(UIHelper.CreateThumbnailCard("Multiple task has been assigned to you", listActionValues, task));
