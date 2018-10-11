@@ -84,5 +84,16 @@ namespace SearchBot
         {
             throw new NotImplementedException();
         }
+
+        public string GetPasswordResetMessage(string userName)
+        {
+            return $"Password has been changed for {userName}.";
+        }
+
+
+        public string GetPasswordResetErrorMessage(string userName)
+        {
+            return $"Error Occurred while changing the Password for {userName}.";
+        }
     }
 }
