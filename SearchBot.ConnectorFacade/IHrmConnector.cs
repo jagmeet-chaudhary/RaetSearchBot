@@ -11,8 +11,8 @@ namespace SearchBot.Connectors
 {
     public interface IHrmConnector
     {
-        List<Employee> SearchEmployees(Employee employee);
-        Employee GetManagerForEmployee(Employee employee);
+        List<Employee> SearchEmployees(Employee employee,string token);
+        Employee GetManagerForEmployee(Employee employee, string token);
 
         AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token);
         ResultTaskDto GetPendingTaskForEmployee(string token);

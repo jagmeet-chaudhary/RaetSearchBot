@@ -44,7 +44,7 @@ namespace SearchBot.Dialogs
         [LuisIntent("Signin")]
         public async Task SignIn(IDialogContext context, LuisResult result)
         {
-            var accessToken = await context.GetUserTokenAsync("testclient1");
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
 
             if (string.IsNullOrEmpty(accessToken?.Token))
             {
@@ -59,7 +59,7 @@ namespace SearchBot.Dialogs
         [LuisIntent("Greetings")]
         public async Task Greeting(IDialogContext context, LuisResult result)
         {
-            var accessToken = await context.GetUserTokenAsync("testclient1").ConfigureAwait(false);
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]).ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(accessToken?.Token))
             {
@@ -86,29 +86,37 @@ namespace SearchBot.Dialogs
         [LuisIntent("HRM.QueryManagerForEmployee")]
         public async Task QueryManagerForEmployee(IDialogContext context, LuisResult result)
         {
-            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity ?? String.Empty;
-            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity ?? String.Empty;
-            var employees = employeeService.GetEmployeesByName(firstName, lastName);
-
-            if (employees.Count > 1)
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(accessToken?.Token))
             {
-                var attachments = conversationInterface.GetEmployeeSearchList(employees, context);
-                var message = context.MakeMessage();
-                message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                message.Attachments = attachments;
+                var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity ?? String.Empty;
+                var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity ?? String.Empty;
+                var employees = employeeService.GetEmployeesByName(firstName, lastName, accessToken.Token);
 
-                await context.PostAsync(message);
-            }
-            else if (employees.Count == 1)
-            {
-                var manager = employeeService.GetManger(employees.FirstOrDefault());
-                var message = conversationInterface.GetManagerMessage(employees.FirstOrDefault(), manager, context);
-                await context.PostAsync(message);
+                if (employees.Count > 1)
+                {
+                    var attachments = conversationInterface.GetEmployeeSearchList(employees, context);
+                    var message = context.MakeMessage();
+                    message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                    message.Attachments = attachments;
+
+                    await context.PostAsync(message);
+                }
+                else if (employees.Count == 1)
+                {
+                    var manager = employeeService.GetManger(employees.FirstOrDefault(), accessToken.Token);
+                    var message = conversationInterface.GetManagerMessage(employees.FirstOrDefault(), manager, context);
+                    await context.PostAsync(message);
+                }
+                else
+                {
+                    var message = conversationInterface.GetNoEmployeesMessage(context);
+                    await context.PostAsync(message);
+                }
             }
             else
             {
-                var message = conversationInterface.GetNoEmployeesMessage(context);
-                await context.PostAsync(message);
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
             }
 
 
@@ -119,7 +127,7 @@ namespace SearchBot.Dialogs
         public async Task QueryOrgUnitChange(IDialogContext context, LuisResult result)
         {
 
-            var accessToken = await context.GetUserTokenAsync("testclient1");
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
 
             if (!string.IsNullOrEmpty(accessToken?.Token))
             {
@@ -154,7 +162,7 @@ namespace SearchBot.Dialogs
         public async Task QueryPendingTaskForEmployee(IDialogContext context, LuisResult result)
         {
 
-            var accessToken = await context.GetUserTokenAsync("testclient1");
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
 
             if (!string.IsNullOrEmpty(accessToken?.Token))
             {
@@ -183,7 +191,7 @@ namespace SearchBot.Dialogs
         public async Task QuerySickLeaveForEmployee(IDialogContext context, LuisResult result)
         {
 
-            var accessToken = await context.GetUserTokenAsync("testclient1");
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
 
             if (!string.IsNullOrEmpty(accessToken?.Token))
             {
@@ -227,7 +235,7 @@ namespace SearchBot.Dialogs
         {
 
             string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
-            var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In",true).ConfigureAwait(false);
+            var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In").ConfigureAwait(false);
             await context.PostAsync(reply);
 
             //context.Wait(WaitForToken);

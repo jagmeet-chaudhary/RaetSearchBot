@@ -33,6 +33,7 @@ namespace SearchBot
             var listActionValues = new List<CardActionValues>();
             foreach (var task in tasks.Items)
             {
+                //todo : remove hardcoding of url
                 listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.OpenUrl, ButtonLabel = $"Click", ButtonValue = $"https://yfo-stark-test.azurewebsites.net/home/{task.ProcessId}/{task.Id}" });
                 //attachments.Add(UIHelper.CreateHeroCard("Multiple task has been assigned to you", "Please click on them", "", listActionValues));
                 attachments.Add(UIHelper.CreateThumbnailCard("Multiple task has been assigned to you", listActionValues, task));

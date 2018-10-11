@@ -20,10 +20,11 @@ namespace SearchBot.Connectors.HRM
             this.tokenProvider = tokenProvider;
         }
 
-        public Employee GetManagerForEmployee(Employee employee)
+        public Employee GetManagerForEmployee(Employee employee,string token)
         {
-            var searchResult = SearchEmployees(employee).FirstOrDefault();
-            PrepareRequest();
+            var searchResult = SearchEmployees(employee,token).FirstOrDefault();
+            requestHelper.Init("HrmBaseUri");
+            requestHelper.AuthenticationToken = token;
             var result = requestHelper.GetWithResponseAsync($"/api/organizationalunits").Result;
             var hrmOrganizationUnits = requestHelper.GetAsync<List<HrmOrganizationalUnit>>($"/api/organizationalunits").Result;
             var manager = hrmOrganizationUnits.FirstOrDefault(x => x.Id == employee.OrgUnitId).Version.Managers.FirstOrDefault();
@@ -33,10 +34,11 @@ namespace SearchBot.Connectors.HRM
                 
             };
          }
-        public List<Employee> SearchEmployees(Employee employeeToSearch)
+        public List<Employee> SearchEmployees(Employee employeeToSearch,string token)
         {
 
-            PrepareRequest();
+            requestHelper.Init("HrmBaseUri");
+            requestHelper.AuthenticationToken = token;
             var hrmEmployees = requestHelper.GetAsync<HrmEmployees>("api/employees").Result;
             var searchResult =new  List<Employee>();
             Predicate<Person> p = x=>false;
@@ -148,12 +150,6 @@ namespace SearchBot.Connectors.HRM
 
             return null;
         }
-
-        public Employee GetManagerForEmployee(Employee employee, string token)
-        {
-            throw new NotImplementedException();
-        }
-
         public IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token)
         {
             requestHelper.Init("HrmBaseUri");
