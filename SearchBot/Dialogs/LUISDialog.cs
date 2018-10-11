@@ -10,6 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using SearchBot.Extensions;
 using System.Net;
+using SearchBot.Connectors.HRM.Model;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SearchBot.Dialogs
 {
@@ -35,7 +37,7 @@ namespace SearchBot.Dialogs
         [LuisIntent("None")]
         public async Task None(IDialogContext context, LuisResult result)
         {
-           
+
             await context.PostAsync("I'm sorry I don't know what you mean.");
             context.Wait(MessageReceived);
         }
@@ -65,23 +67,32 @@ namespace SearchBot.Dialogs
             }
             else
             {
+                JsonWebToken jsonWebToken = GetInfoToken(accessToken.Token);
+                context.UserData.SetValue("Name", jsonWebToken.Name);
                 context.Call(new GreetingDialog(), Callback);
             }
-            
-            
+
+        }
+
+        private async Task ResumeAfterAuth(IDialogContext context, IAwaitable<object> result)
+        {
+            var message = await result;
+
+            await context.PostAsync(context.MakeMessage());
+
         }
 
 
         [LuisIntent("HRM.QueryManagerForEmployee")]
         public async Task QueryManagerForEmployee(IDialogContext context, LuisResult result)
         {
-            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity??String.Empty;
-            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity??String.Empty;
+            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity ?? String.Empty;
+            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity ?? String.Empty;
             var employees = employeeService.GetEmployeesByName(firstName, lastName);
 
             if (employees.Count > 1)
             {
-                var attachments = conversationInterface.GetEmployeeSearchList(employees,context);
+                var attachments = conversationInterface.GetEmployeeSearchList(employees, context);
                 var message = context.MakeMessage();
                 message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
                 message.Attachments = attachments;
@@ -91,7 +102,7 @@ namespace SearchBot.Dialogs
             else if (employees.Count == 1)
             {
                 var manager = employeeService.GetManger(employees.FirstOrDefault());
-                var message = conversationInterface.GetManagerMessage(employees.FirstOrDefault(),manager,context);
+                var message = conversationInterface.GetManagerMessage(employees.FirstOrDefault(), manager, context);
                 await context.PostAsync(message);
             }
             else
@@ -114,18 +125,18 @@ namespace SearchBot.Dialogs
             {
                 var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
 
-                var orgunit = employeeService.GetOrgUnitByName(orgUnitName);
+                var orgunit = employeeService.GetOrgUnitByName(orgUnitName, accessToken.Token);
 
 
                 if (orgunit != null)
                 {
-                    //var manager = employeeService.GetManger(employees.FirstOrDefault());
-                    var message = conversationInterface.GetOrgUnitMessage(orgunit,context);
+
+                    var message = conversationInterface.GetOrgUnitMessage(orgunit, context);
                     await context.PostAsync(message);
                 }
                 else
                 {
-                    var message = conversationInterface.GetNoAuditChangeMessage(context);
+                    var message = conversationInterface.GetNoOrgUnitMessage(orgUnitName);
                     await context.PostAsync(message);
                 }
 
@@ -147,9 +158,42 @@ namespace SearchBot.Dialogs
 
             if (!string.IsNullOrEmpty(accessToken?.Token))
             {
-               // var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
 
-                var orgunit = employeeService.GetPendingTaskForEmployee();
+                var tasks = employeeService.GetPendingTaskForEmployee(accessToken.Token);
+
+                var attachments = conversationInterface.GetPendingTaskForEmployee(tasks);
+                var message = context.MakeMessage();
+                message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                message.Attachments = attachments;
+
+                await context.PostAsync(message);
+
+
+            }
+            else
+            {
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
+            }
+
+        }
+
+
+
+        [LuisIntent("HRM.QuerySickLeaveForEmployee")]
+        public async Task QuerySickLeaveForEmployee(IDialogContext context, LuisResult result)
+        {
+
+            var accessToken = await context.GetUserTokenAsync("testclient1");
+
+            if (!string.IsNullOrEmpty(accessToken?.Token))
+            {
+                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
+
+                var sickLeave_Employees = employeeService.GetSickLeaveEmployees(orgUnitName, "1800-01-01", "9999-12-31", accessToken.Token);
+
+                await context.PostAsync(conversationInterface.GetleavesOfEmployees(sickLeave_Employees));
+
+
             }
             else
             {
@@ -181,7 +225,7 @@ namespace SearchBot.Dialogs
         }
         private async Task SendOAuthCardAsync(IDialogContext context, Activity activity)
         {
-            
+
             string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
             var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In",true).ConfigureAwait(false);
             await context.PostAsync(reply);
@@ -201,6 +245,22 @@ namespace SearchBot.Dialogs
         //    }
 
         //}
+
+        private JsonWebToken GetInfoToken(string token)
+        {
+            JwtSecurityToken jwtSecurityToken = GetSecurityToken(token);
+
+            JsonWebTokenAssembler jsonWebTokenAssembler = new JsonWebTokenAssembler();
+            var jsonWebToken = jsonWebTokenAssembler.ListOfClaimsToJsonWebToken(jwtSecurityToken.Claims);
+            return jsonWebToken;
+        }
+
+        private JwtSecurityToken GetSecurityToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenS = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            return tokenS;
+        }
 
         #endregion
 

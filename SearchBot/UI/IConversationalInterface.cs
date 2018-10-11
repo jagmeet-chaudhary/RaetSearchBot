@@ -1,5 +1,6 @@
 ﻿using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
+using SearchBot.Connectors.HRM.Model;
 using SearchBot.Model;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,10 @@ namespace SearchBot
         string GetNoEmployeesMessage(IDialogContext context);
         string GetNoAuditChangeMessage(IDialogContext context);
         string GetManagerMessage(Employee employee,Employee manager,IDialogContext context);
+        List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks);
+        string GetNoOrgUnitMessage(string orgUnitName);
         string GetOrgUnitMessage(AuditChangeContextDto dto, IDialogContext context);
+
+        string GetleavesOfEmployees(IList<SickLeave_Employee> sickLeave_Employees);
     }
 }

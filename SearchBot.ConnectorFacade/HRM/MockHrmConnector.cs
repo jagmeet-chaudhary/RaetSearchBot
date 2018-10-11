@@ -1,4 +1,5 @@
 ﻿
+using SearchBot.Connectors.HRM.Model;
 using SearchBot.Model;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace SearchBot.Connectors.Mocks
 
         }
 
-        public Employee GetEmployeeManager(Employee employee)
+        public Employee GetEmployeeManager(Employee employee, string token)
         {
             return new Employee()
             {
@@ -51,7 +52,7 @@ namespace SearchBot.Connectors.Mocks
             };
         }
 
-        public Employee GetManagerForEmployee(Employee employee)
+        public Employee GetManagerForEmployee(Employee employee, string token)
         {
             return new Employee()
             {
@@ -61,12 +62,32 @@ namespace SearchBot.Connectors.Mocks
         }
 
 
-        public AuditChangeContextDto GetOrgUnitByName(string orgUnitName)
+        public AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token)
         {
             throw new NotImplementedException();
         }
 
-        public ResultTaskDto GetPendingTaskForEmployee()
+        public ResultTaskDto GetPendingTaskForEmployee(string token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetUserImage(string externalId, string token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PersonDetails GetUserDetails(string externalId, string token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Employee GetManagerForEmployee(Employee employee)
         {
             throw new NotImplementedException();
         }
