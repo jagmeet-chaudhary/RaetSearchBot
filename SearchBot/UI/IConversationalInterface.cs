@@ -18,8 +18,12 @@ namespace SearchBot
         string GetManagerMessage(Employee employee,Employee manager,IDialogContext context);
         List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks);
         string GetNoOrgUnitMessage(string orgUnitName);
+
+        string GetPasswordResetMessage(string userName);
         string GetOrgUnitMessage(AuditChangeContextDto dto, IDialogContext context);
 
         string GetleavesOfEmployees(IList<SickLeave_Employee> sickLeave_Employees);
+
+        string GetPasswordResetErrorMessage(string userName);
     }
 }

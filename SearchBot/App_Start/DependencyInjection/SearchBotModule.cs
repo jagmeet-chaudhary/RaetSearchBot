@@ -9,6 +9,7 @@ using SearchBot.Service.DependencyInjection;
 using SearchBot.Dialogs;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Internals.Fibers;
+using SearchBot.Service.RVM;
 
 namespace SearchBot.DependencyInjection
 {
@@ -34,7 +35,13 @@ namespace SearchBot.DependencyInjection
                .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
-            
+
+            builder
+          .RegisterType<RVM_UserService>()
+          .Keyed<IRVM_UserService>(FiberModule.Key_DoNotSerialize)
+           .AsImplementedInterfaces()
+            .InstancePerLifetimeScope();
+
 
             builder
               .RegisterType<QueryManagerConversationInterface>()

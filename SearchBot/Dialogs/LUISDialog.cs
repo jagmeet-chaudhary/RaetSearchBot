@@ -12,6 +12,7 @@ using SearchBot.Extensions;
 using System.Net;
 using SearchBot.Connectors.HRM.Model;
 using System.IdentityModel.Tokens.Jwt;
+using SearchBot.Service.RVM;
 
 namespace SearchBot.Dialogs
 {
@@ -21,11 +22,15 @@ namespace SearchBot.Dialogs
     public class LUISDialog : LuisDialog<object>
     {
         IEmployeeService employeeService;
+
+        IRVM_UserService rvmService;
+
         IQueryManagerConversationInterface conversationInterface;
-        public LUISDialog(IEmployeeService employeeService, IQueryManagerConversationInterface conversationInterface)
+        public LUISDialog(IEmployeeService employeeService, IRVM_UserService rvmService, IQueryManagerConversationInterface conversationInterface)
         {
             this.employeeService = employeeService;
             this.conversationInterface = conversationInterface;
+            this.rvmService = rvmService;
         }
         [LuisIntent("SignOut")]
         public async Task LogOut(IDialogContext context, LuisResult result)
@@ -209,6 +214,30 @@ namespace SearchBot.Dialogs
 
             }
 
+        }
+
+
+        [LuisIntent("HRM.QueryForResetPasswordForRVM")]
+        public async Task QueryForResetPasswordForRVM(IDialogContext context, LuisResult result)
+        {
+
+
+            var firstName = result.Entities?.FirstOrDefault(x => x.Type == "FirstName")?.Entity ?? String.Empty;
+            var lastName = result.Entities?.FirstOrDefault(x => x.Type == "LastName")?.Entity ?? String.Empty;
+            var newPassword = result.Entities?.FirstOrDefault(x => x.Type == "ResetPassword")?.Entity;
+            var userName = firstName + ' ' + lastName;
+
+            var reset_RvmPassword = rvmService.Resetpassword(userName, newPassword);
+
+            if(reset_RvmPassword)
+            {
+                await context.PostAsync(conversationInterface.GetPasswordResetMessage(userName));
+            }
+            else
+            {
+                await context.PostAsync(conversationInterface.GetPasswordResetErrorMessage(userName));
+            }
+                     
         }
 
         #region Private

@@ -61,6 +61,7 @@
     <Compile Include="HRM\EmployeeService.cs" />
     <Compile Include="Interfaces\IEmployeeService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RVM\RVM_UserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SearchBot.Common\SearchBot.Common.csproj">

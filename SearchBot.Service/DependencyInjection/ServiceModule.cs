@@ -3,6 +3,7 @@ using SearchBot.Common;
 using SearchBot.Connectors;
 using SearchBot.Connectors.HRM;
 using SearchBot.Connectors.Mocks;
+using SearchBot.Connectors.RVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,11 @@ namespace SearchBot.Service.DependencyInjection
             base.Load(builder);
             builder.RegisterType<HrmApiConnector>()
                 .As<IHrmConnector>()
+                .InstancePerLifetimeScope();
+
+            base.Load(builder);
+            builder.RegisterType<RVMConnector>()
+                .As<IRVMConnector>()
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<RequestHelper>()
