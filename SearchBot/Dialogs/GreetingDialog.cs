@@ -16,11 +16,9 @@ namespace SearchBot.Dialogs
 		{
 			await context.PostAsync("Hi I'm Raet Bot.");
 			await Respond(context);
-
-			context.Wait(MessageReceivedAsync);
 		}
 
-		private static async Task Respond(IDialogContext context)
+		private  async Task Respond(IDialogContext context)
 		{
 			var userName = String.Empty;
 			context.UserData.TryGetValue<string>("Name", out userName);
@@ -28,11 +26,14 @@ namespace SearchBot.Dialogs
 			{
 				await context.PostAsync("What is your name?");
 				context.UserData.SetValue<bool>("GetName", true);
-			}
+                context.Wait(MessageReceivedAsync);
+            }
 			else
 			{
 				await context.PostAsync(String.Format("Hi {0}.  How can I help you today?", userName));
-			}
+                context.Done(String.Empty);
+
+            }
 		}
 
 		public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
@@ -48,10 +49,8 @@ namespace SearchBot.Dialogs
 				userName = message.Text;
 				context.UserData.SetValue<string>("Name", userName);
 				context.UserData.SetValue<bool>("GetName", false);
-			}
-
-
-			await Respond(context);
+                await Respond(context);
+            }
 			context.Done(message);
 		}
 	}
