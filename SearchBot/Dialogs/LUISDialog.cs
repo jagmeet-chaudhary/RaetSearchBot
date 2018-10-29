@@ -13,6 +13,8 @@ using System.Net;
 using SearchBot.Connectors.HRM.Model;
 using System.IdentityModel.Tokens.Jwt;
 using SearchBot.Service.RVM;
+using Autofac;
+using SearchBot.UI;
 
 namespace SearchBot.Dialogs
 {
@@ -26,11 +28,13 @@ namespace SearchBot.Dialogs
         IRVM_UserService rvmService;
 
         IQueryManagerConversationInterface conversationInterface;
-        public LUISDialog(IEmployeeService employeeService, IRVM_UserService rvmService, IQueryManagerConversationInterface conversationInterface)
+        IGreetingsConversationalInterface greetingsConversationInterface;
+        public LUISDialog(IEmployeeService employeeService, IRVM_UserService rvmService, IQueryManagerConversationInterface conversationInterface, IGreetingsConversationalInterface greetingsConversationInterface)
         {
             this.employeeService = employeeService;
             this.conversationInterface = conversationInterface;
             this.rvmService = rvmService;
+            this.greetingsConversationInterface = greetingsConversationInterface;
         }
         [LuisIntent("SignOut")]
         public async Task LogOut(IDialogContext context, LuisResult result)
@@ -74,7 +78,7 @@ namespace SearchBot.Dialogs
             {
                 JsonWebToken jsonWebToken = GetInfoToken(accessToken.Token);
                 context.UserData.SetValue("Name", jsonWebToken.Name);
-                context.Call(new GreetingDialog(), Callback);
+                context.Call(new GreetingDialog(employeeService,greetingsConversationInterface, conversationInterface), Callback);
             }
 
         }

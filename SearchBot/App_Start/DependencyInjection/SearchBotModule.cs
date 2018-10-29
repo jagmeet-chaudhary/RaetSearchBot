@@ -49,6 +49,12 @@ namespace SearchBot.DependencyInjection
                .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
+            builder
+              .RegisterType<GreetingsConversationalInterface>()
+              .Keyed<IGreetingsConversationalInterface>(FiberModule.Key_DoNotSerialize)
+               .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<LUISDialog>()
                  .AsSelf()
                  .InstancePerDependency();
