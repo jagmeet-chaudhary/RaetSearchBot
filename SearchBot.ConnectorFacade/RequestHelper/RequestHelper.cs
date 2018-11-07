@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SearchBot.Common;
+using SearchBot.Common.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -116,6 +117,8 @@ namespace SearchBot.Connectors
             if (!response.IsSuccessStatusCode)
             {
                 LogFactory.Log.Error($"RequestHelper.GetAsync returned non successful status code: {path}");
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                    throw new NotAuthorizedException();
 
                 throw new Exception($"Incorrect response with status code : {response.StatusCode}");
             }

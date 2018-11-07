@@ -41,11 +41,16 @@ namespace SearchBot.Service.HRM
             return orgunit;
         }
 
+        public int GetPendingTaskCountForEmployee(string token)
+        {
+            var pendingTask = hrmConnector.GetPendingTaskForEmployee(token);
+            return Convert.ToInt32(pendingTask.Count);
+        }
         public ResultTaskDto GetPendingTaskForEmployee(string token)
         {
 
             var pendingTask = hrmConnector.GetPendingTaskForEmployee(token);
-
+           
             foreach (var task in pendingTask.Items)
             {
                 task.UserImage = hrmConnector.GetUserImage(task.SubjectReferenceId, token);

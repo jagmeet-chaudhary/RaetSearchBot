@@ -1,92 +1,108 @@
-﻿using System;
+﻿using SearchBot.Common;
+using SearchBot.Common.Exceptions;
+using SearchBot.Connectors.HRM.Model;
+using SearchBot.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SearchBot.Common;
-using SearchBot.Model;
-using SearchBot.Connectors.HRM.Model;
-using System.Linq.Expressions;
 
 namespace SearchBot.Connectors.HRM
 {
     public class HrmApiConnector : IHrmConnector
     {
-        IRequestHelper requestHelper;
-        ITokenProvider tokenProvider;
+        private IRequestHelper requestHelper;
+        private ITokenProvider tokenProvider;
+
         public HrmApiConnector(IRequestHelper requestHelper, ITokenProvider tokenProvider)
         {
             this.requestHelper = requestHelper;
             this.tokenProvider = tokenProvider;
         }
 
-        public Employee GetManagerForEmployee(Employee employee,string token)
+        public Employee GetManagerForEmployee(Employee employee, string token)
         {
-            var searchResult = SearchEmployees(employee,token).FirstOrDefault();
-            requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = token;
-            var result = requestHelper.GetWithResponseAsync($"/api/organizationalunits").Result;
-            var hrmOrganizationUnits = requestHelper.GetAsync<List<HrmOrganizationalUnit>>($"/api/organizationalunits").Result;
-            var manager = hrmOrganizationUnits.FirstOrDefault(x => x.Id == employee.OrgUnitId).Version.Managers.FirstOrDefault();
-            return new Employee()
+            try
             {
-                FirstName = manager.Name,
-                
-            };
-         }
-        public List<Employee> SearchEmployees(Employee employeeToSearch,string token)
-        {
-
-            requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = token;
-            var hrmEmployees = requestHelper.GetAsync<HrmEmployees>("api/employees").Result;
-            var searchResult =new  List<Employee>();
-            Predicate<Person> p = x=>false;
-            if (!String.IsNullOrWhiteSpace(employeeToSearch.FirstName) && !String.IsNullOrWhiteSpace(employeeToSearch.LastName))
-            {
-                p = x => x.FamilyName?.ToUpper() == employeeToSearch?.LastName.ToUpper() && x.BirthName?.ToUpper() == employeeToSearch.FirstName.ToUpper();
-            }
-            else if(!String.IsNullOrWhiteSpace(employeeToSearch.FirstName))
-            {
-                 p = x =>  x.BirthName?.ToUpper() == employeeToSearch.FirstName.ToUpper();
-            }
-            else if(!String.IsNullOrWhiteSpace(employeeToSearch.LastName))
-            {
-                 p = x => x.FamilyName?.ToUpper() == employeeToSearch?.LastName.ToUpper() || x.GivenName?.ToUpper() == employeeToSearch.LastName.ToUpper();
-            }
-            
-            var filteredResults = hrmEmployees.Items.Where(x=>p(x));
-
-            
-            foreach (var hrmEmployee in filteredResults)
-            {
-                var employee = new Employee()
+                var searchResult = SearchEmployees(employee, token).FirstOrDefault();
+                requestHelper.Init("HrmBaseUri");
+                requestHelper.AuthenticationToken = token;
+                var result = requestHelper.GetWithResponseAsync($"/api/organizationalunits").Result;
+                var hrmOrganizationUnits = requestHelper.GetAsync<List<HrmOrganizationalUnit>>($"/api/organizationalunits").Result;
+                var manager = hrmOrganizationUnits.FirstOrDefault(x => x.Id == employee.OrgUnitId).Version.Managers.FirstOrDefault();
+                return new Employee()
                 {
-                    OrgUnitId = hrmEmployee.Contract.OrganizationalUnit.Id,
-                    Id = hrmEmployee.Id,
-                    FirstName = hrmEmployee.BirthName,
-                    LastName = hrmEmployee.FamilyName
+                    FirstName = manager.Name,
                 };
-                searchResult.Add(employee);
-            };
+            }
+            catch (Exception ex)
+            {
 
-            return searchResult;
+                ProcessException(ex, "GetManagerForEmployee");
+            }
+            return null;
+        }
+
+        public List<Employee> SearchEmployees(Employee employeeToSearch, string token)
+        {
+            try
+            {
+                requestHelper.Init("HrmBaseUri");
+                requestHelper.AuthenticationToken = token;
+                var hrmEmployees = requestHelper.GetAsync<HrmEmployees>("api/employees").Result;
+                var searchResult = new List<Employee>();
+                Predicate<Person> p = x => false;
+                if (!String.IsNullOrWhiteSpace(employeeToSearch.FirstName) && !String.IsNullOrWhiteSpace(employeeToSearch.LastName))
+                {
+                    p = x => x.FamilyName?.ToUpper() == employeeToSearch?.LastName.ToUpper() && x.BirthName?.ToUpper() == employeeToSearch.FirstName.ToUpper();
+                }
+                else if (!String.IsNullOrWhiteSpace(employeeToSearch.FirstName))
+                {
+                    p = x => x.BirthName?.ToUpper() == employeeToSearch.FirstName.ToUpper();
+                }
+                else if (!String.IsNullOrWhiteSpace(employeeToSearch.LastName))
+                {
+                    p = x => x.FamilyName?.ToUpper() == employeeToSearch?.LastName.ToUpper() || x.GivenName?.ToUpper() == employeeToSearch.LastName.ToUpper();
+                }
+
+                var filteredResults = hrmEmployees.Items.Where(x => p(x));
+
+                foreach (var hrmEmployee in filteredResults)
+                {
+                    var employee = new Employee()
+                    {
+                        OrgUnitId = hrmEmployee.Contract.OrganizationalUnit.Id,
+                        Id = hrmEmployee.Id,
+                        FirstName = hrmEmployee.BirthName,
+                        LastName = hrmEmployee.FamilyName
+                    };
+                    searchResult.Add(employee);
+                };
+
+                return searchResult;
+            }
+            catch (Exception ex)
+            {
+
+                ProcessException(ex, "SearchEmployees");
+            }
+            return null;
         }
 
         public AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token)
         {
-            requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = token;
-
             try
             {
+                requestHelper.Init("HrmBaseUri");
+                requestHelper.AuthenticationToken = token;
+
                 string testurl = "api/auditreader/odm/?$count=true&$top=25&$skip=0&$filter=EntityName%20eq%20%27HRM_OrganizationalUnit%27%20and%20ChangedDate%20ge%202016-07-31T18:30:00Z%20and%20ChangedDate%20le%202018-09-19T18:29:59Z&$orderby=ChangedDate%20desc";
                 var hrmEmployees = requestHelper.GetAsync<OdataAuditContextDto>(testurl).Result;
                 return hrmEmployees.Items.FirstOrDefault(s => s.SubjectName.ToLower() == orgUnitName);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("the test");
+
+                ProcessException(ex, "GetOrgUnitByName");
             }
 
             return null;
@@ -94,20 +110,20 @@ namespace SearchBot.Connectors.HRM
 
         public ResultTaskDto GetPendingTaskForEmployee(string token)
         {
-            requestHelper.Init("WorkFlowBaseUri");
-            requestHelper.AuthenticationToken = token;
-
             try
             {
+                requestHelper.Init("WorkFlowBaseUri");
+                requestHelper.AuthenticationToken = token;
+
                 string testurl = "api/tasks/Pending?$count=true&$top=5&$skip=0";
                 var pendingTask = requestHelper.GetAsync<ResultTaskDto>(testurl).Result;
                 return pendingTask;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("the test");
-            }
 
+                ProcessException(ex, "GetPendingTaskForEmployee");
+            }
             return null;
         }
 
@@ -124,39 +140,39 @@ namespace SearchBot.Connectors.HRM
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed in getting the user Image");
+                ProcessException(ex, "GetUserImage");
             }
-
 
             return null;
         }
 
         public PersonDetails GetUserDetails(string externalId, string token)
         {
-            requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = token;
-
             try
             {
+                requestHelper.Init("HrmBaseUri");
+                requestHelper.AuthenticationToken = token;
+
                 string apiUrl = $"api/persons?externalId={externalId}";
                 var personDetails = requestHelper.GetAsync<PersonDetails>(apiUrl).Result;
                 return personDetails;
             }
+            
             catch (Exception ex)
             {
-                Console.WriteLine("Failed in getting the user Image");
+                ProcessException(ex, "GetUserDetals");
             }
-
-
             return null;
+    
         }
+
         public IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token)
         {
-            requestHelper.Init("HrmBaseUri");
-            requestHelper.AuthenticationToken = token;
-
             try
             {
+                requestHelper.Init("HrmBaseUri");
+                requestHelper.AuthenticationToken = token;
+
                 string apiUrl = $"api/sickleaves/organizationalunits";
                 var SickLeave_orgUnits = requestHelper.GetAsync<IList<SickLeave_orgUnit>>(apiUrl).Result;
 
@@ -168,7 +184,6 @@ namespace SearchBot.Connectors.HRM
                 string allEmployeesURI = $"/api/sickleaves/employees?orgUnitId={orgUnit.Id}";
                 var sickLeave_AllEmployees = requestHelper.GetAsync<IList<SickLeave_AllEmployee>>(allEmployeesURI).Result;
 
-
                 string leaveUri = $"api/sickleaves/organizationalunits/{orgUnit.Id}/sickleaves?startDate={from}&endDate={to}";
                 var details = requestHelper.GetAsync<IList<SickLeave_Employee>>(leaveUri).Result;
 
@@ -176,14 +191,13 @@ namespace SearchBot.Connectors.HRM
                 {
                     employee.Displayname = sickLeave_AllEmployees.FirstOrDefault(x => x.ContractId == employee.ContractId)?.DisplayName;
                 }
-                
 
                 return details;
-
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed in getting the user Image");
+
+                ProcessException(ex, "Sickleave");
             }
 
             return null;
@@ -196,7 +210,13 @@ namespace SearchBot.Connectors.HRM
             var tenantId = "188a2e34-410b-41af-a501-8e99482a8e8e";
             requestHelper.AddClientHeader("x-raet-tenant-id", tenantId);
         }
-         
-     
+
+        private void ProcessException(Exception ex,string logPrefix)
+        {
+            LogFactory.Log.Error($"{logPrefix} : Exception : {ex.Message}");
+
+            if (ex.InnerException is NotAuthorizedException)
+                throw ex;
+        }
     }
 }

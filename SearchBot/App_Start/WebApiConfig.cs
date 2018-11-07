@@ -11,6 +11,7 @@ using SearchBot.DependencyInjection;
 using SearchBot.Service.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Web.Http;
@@ -42,9 +43,9 @@ namespace SearchBot
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
-
-            
+                                         
             );
+            
         }
 
         private static void ConfigureAutofac(HttpConfiguration config)

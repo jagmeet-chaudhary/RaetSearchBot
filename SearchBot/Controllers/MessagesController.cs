@@ -57,7 +57,7 @@ namespace SearchBot
                     //translate activity.Text to English before sending to LUIS for intent
                     activity.Text = TranslationHandler.TranslateTextToDefaultLanguage(activity, userLanguage);
 
-                    var dialog = scope.Resolve<LUISDialog>();
+                    var dialog = scope.Resolve<RootDialog>();
                     await Conversation.SendAsync(activity, () => dialog);
                 }
             }

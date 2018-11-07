@@ -20,7 +20,7 @@ namespace SearchBot.Dialogs
         IEmployeeService employeeService;
         IGreetingsConversationalInterface greetingConversationInterface;
         IQueryManagerConversationInterface queryManagerConversationInterface;
-        ResultTaskDto taskList = new ResultTaskDto();
+        
         public GreetingDialog(IEmployeeService employeeService, IGreetingsConversationalInterface greetingConversationInterface
             , IQueryManagerConversationInterface queryManagerConversationInterface)
         {
@@ -49,8 +49,8 @@ namespace SearchBot.Dialogs
                 await context.PostAsync(String.Format(greetingConversationInterface.GetHiGreetingText(context), userName));
                 await context.PostAsync(String.Format(greetingConversationInterface.GetFetchingPendingTasksText(context)));
                 var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
-                taskList = employeeService.GetPendingTaskForEmployee(accessToken.Token);
-                await context.PostAsync(String.Format(greetingConversationInterface.GetPendingTaskDetailsText(context), taskList.Count));
+                var count = employeeService.GetPendingTaskCountForEmployee(accessToken.Token);
+                await context.PostAsync(String.Format(greetingConversationInterface.GetPendingTaskDetailsText(context), count));
                 context.Wait(CallbackForTasks);
 
             }
@@ -80,6 +80,8 @@ namespace SearchBot.Dialogs
             var yesResponse = greetingConversationInterface.GetYesText(context);
             if (response.Text.Trim().Equals(yesResponse, StringComparison.InvariantCultureIgnoreCase))
             {
+                var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
+                ResultTaskDto taskList = employeeService.GetPendingTaskForEmployee(accessToken.Token);
                 var attachments = queryManagerConversationInterface.GetPendingTaskForEmployee(taskList);
                 var message = context.MakeMessage();
                 message.AttachmentLayout = AttachmentLayoutTypes.Carousel;

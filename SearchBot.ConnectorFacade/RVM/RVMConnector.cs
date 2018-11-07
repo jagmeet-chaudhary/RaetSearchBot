@@ -1,4 +1,5 @@
 ﻿using SearchBot.Common;
+using SearchBot.Common.Exceptions;
 using SearchBot.Connectors.RVM.Model;
 using System;
 using System.Collections.Generic;
@@ -37,11 +38,12 @@ namespace SearchBot.Connectors.RVM
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                ProcessException(ex, "ResetPassword");
             }
+            return false;
 
 
         }
@@ -69,7 +71,7 @@ namespace SearchBot.Connectors.RVM
             }
             catch (Exception ex)
             {
-                Console.WriteLine("the test");
+                ProcessException(ex, "GetRvmUserId");
             }
 
             return null;
@@ -85,8 +87,15 @@ namespace SearchBot.Connectors.RVM
             return client.SendAsync(request);
         }
 
-    }
+        private void ProcessException(Exception ex, string logPrefix)
+        {
+            LogFactory.Log.Error($"{logPrefix} : Exception : {ex.Message}");
 
+            if (ex.InnerException is NotAuthorizedException)
+                throw ex;
+        }
+    }
+    
     public interface IRVMConnector
     {
         bool ResetPassword(string username, string newPassword);
