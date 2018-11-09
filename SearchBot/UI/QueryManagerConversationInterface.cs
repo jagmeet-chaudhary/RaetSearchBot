@@ -9,6 +9,7 @@ using SearchBot.Extensions;
 using SearchBot.Connectors.HRM.Model;
 using SearchBot.Model;
 using SearchBot.UI;
+using System.Configuration;
 
 namespace SearchBot
 {
@@ -29,12 +30,14 @@ namespace SearchBot
 
         public List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks)
         {
+            var baseUrl = ConfigurationManager.AppSettings["UiAppUrl"];
+            
             var attachments = new List<Attachment>();
             var listActionValues = new List<CardActionValues>();
             foreach (var task in tasks.Items)
             {
                 //todo : remove hardcoding of url
-                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.OpenUrl, ButtonLabel = $"Click", ButtonValue = $"https://yfo-stark-test.azurewebsites.net/home/{task.ProcessId}/{task.Id}" });
+                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.OpenUrl, ButtonLabel = $"Click", ButtonValue = $"{baseUrl}home/{task.ProcessId}/{task.Id}" });
                 //attachments.Add(UIHelper.CreateHeroCard("Multiple task has been assigned to you", "Please click on them", "", listActionValues));
                 attachments.Add(UIHelper.CreateThumbnailCard("Multiple task has been assigned to you", listActionValues, task));
             }

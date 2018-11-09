@@ -1,4 +1,5 @@
 ﻿using Microsoft.Bot.Connector;
+using SearchBot.Extensions;
 using SearchBot.Model;
 using System;
 using System.Collections.Generic;

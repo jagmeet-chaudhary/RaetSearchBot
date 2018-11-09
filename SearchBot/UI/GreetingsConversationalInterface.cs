@@ -2,6 +2,7 @@
 using SearchBot.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 
@@ -15,12 +16,15 @@ namespace SearchBot
 
         const string HiGreeting = "Hi {0}.  How are you today?";
 
-        const string PendingTaskDetails = "You have {0} pending tasks today.Do you want to see the details ?";
+        const string PendingTaskDetails = "You have {0} pending tasks.Do you want to see the details ?";
 
         const string YesText = "Yes";
         const string UserInputQuestion = "Sure.What can I do for you ?";
 
-        const string FetchingPendingTasks = "Let me fetch your pending tasks for today...";
+        const string FetchingPendingTasks = "Let me fetch your pending tasks...";
+        const string NoPendingTaskText = "You have no pending tasks.";
+        const string MostRecentPendingTaskText = "Here are the 5 most recent pending task.";
+        const string FullListPendingTaskText = "You can also view the full list of pending tasks [here]({0})";
 
         public string GetAskNameText(IDialogContext context)
         {
@@ -55,6 +59,23 @@ namespace SearchBot
         public string GetYesText(IDialogContext context)
         {
             return YesText.ToUserLocale(context);
+        }
+
+        public string GetNoPendingTaskText(IDialogContext context)
+        {
+            return NoPendingTaskText.ToUserLocale(context);
+        }
+
+        public string GetMostRecentPendingTaskText(IDialogContext context)
+        {
+            return MostRecentPendingTaskText.ToUserLocale(context);
+        }
+
+        public string GetFullListPendingTaskText(IDialogContext context)
+        {
+            var baseUrl = ConfigurationManager.AppSettings["UiAppUrl"];
+            var taskUrl = $"{baseUrl}inbox/to-be-completed";
+            return String.Format(FullListPendingTaskText.ToUserLocale(context), taskUrl);
         }
     }
 }

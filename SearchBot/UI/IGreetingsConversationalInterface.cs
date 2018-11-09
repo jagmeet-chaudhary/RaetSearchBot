@@ -17,5 +17,9 @@ namespace SearchBot
         string GetYesText(IDialogContext context);
         string GetUserInputQuestionText(IDialogContext context);
         string GetFetchingPendingTasksText(IDialogContext context);
+        string GetNoPendingTaskText(IDialogContext context);
+        string GetMostRecentPendingTaskText(IDialogContext context);
+        string GetFullListPendingTaskText(IDialogContext context);
+      
     }
 }

@@ -47,7 +47,7 @@ namespace SearchBot.Dialogs
         public async Task None(IDialogContext context, LuisResult result)
         {
 
-            await context.PostAsync("I'm sorry I don't know what you mean.");
+            await context.PostAsync("I'm sorry I don't know what you mean.".ToUserLocale(context));
             context.Wait(MessageReceived);
         }
         [LuisIntent("Signin")]
@@ -61,7 +61,7 @@ namespace SearchBot.Dialogs
             }
             else
             {
-                await context.PostAsync("You're already logged in.");
+                await context.PostAsync("You're already logged in.".ToUserLocale(context));
             }
         }
 
@@ -177,13 +177,23 @@ namespace SearchBot.Dialogs
             {
 
                 var tasks = employeeService.GetPendingTaskForEmployee(accessToken.Token);
-
-                var attachments = conversationInterface.GetPendingTaskForEmployee(tasks);
                 var message = context.MakeMessage();
-                message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                message.Attachments = attachments;
+                if (tasks.Items.Count > 0)
+                {
+                    await context.PostAsync(greetingsConversationInterface.GetMostRecentPendingTaskText(context));
+                    var attachments = conversationInterface.GetPendingTaskForEmployee(tasks);
+                    message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                    message.Attachments = attachments;
+                    await context.PostAsync(message);
+                    await context.PostAsync(greetingsConversationInterface.GetFullListPendingTaskText(context));
+                }
+                else
+                {
+                    message.Text = greetingsConversationInterface.GetNoPendingTaskText(context);
+                    await context.PostAsync(message);
+                }
 
-                await context.PostAsync(message);
+                
 
 
             }

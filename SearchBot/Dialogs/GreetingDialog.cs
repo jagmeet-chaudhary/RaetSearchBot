@@ -50,7 +50,14 @@ namespace SearchBot.Dialogs
                 await context.PostAsync(String.Format(greetingConversationInterface.GetFetchingPendingTasksText(context)));
                 var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
                 var count = employeeService.GetPendingTaskCountForEmployee(accessToken.Token);
-                await context.PostAsync(String.Format(greetingConversationInterface.GetPendingTaskDetailsText(context), count));
+                if (count > 0)
+                {
+                    await context.PostAsync(String.Format(greetingConversationInterface.GetPendingTaskDetailsText(context), count));
+                }
+                else
+                {
+                    await context.PostAsync(String.Format(greetingConversationInterface.GetNoPendingTaskText(context)));
+                }
                 context.Wait(CallbackForTasks);
 
             }
@@ -81,13 +88,22 @@ namespace SearchBot.Dialogs
             if (response.Text.Trim().Equals(yesResponse, StringComparison.InvariantCultureIgnoreCase))
             {
                 var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
-                ResultTaskDto taskList = employeeService.GetPendingTaskForEmployee(accessToken.Token);
-                var attachments = queryManagerConversationInterface.GetPendingTaskForEmployee(taskList);
+                var tasks = employeeService.GetPendingTaskForEmployee(accessToken.Token);
                 var message = context.MakeMessage();
-                message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
-                message.Attachments = attachments;
-
-                await context.PostAsync(message);
+                if (tasks.Items.Count > 0)
+                {
+                    await context.PostAsync(greetingConversationInterface.GetMostRecentPendingTaskText(context));
+                    var attachments = queryManagerConversationInterface.GetPendingTaskForEmployee(tasks);
+                    message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
+                    message.Attachments = attachments;
+                    await context.PostAsync(message);
+                    await context.PostAsync(greetingConversationInterface.GetFullListPendingTaskText(context));
+                }
+                else
+                {
+                    message.Text = greetingConversationInterface.GetNoPendingTaskText(context);
+                    await context.PostAsync(message);
+                }
             }
             else
             {
