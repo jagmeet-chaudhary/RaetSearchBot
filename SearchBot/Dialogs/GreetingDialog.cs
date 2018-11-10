@@ -93,7 +93,7 @@ namespace SearchBot.Dialogs
                 if (tasks.Items.Count > 0)
                 {
                     await context.PostAsync(greetingConversationInterface.GetMostRecentPendingTaskText(context));
-                    var attachments = queryManagerConversationInterface.GetPendingTaskForEmployee(tasks);
+                    var attachments = queryManagerConversationInterface.GetPendingTaskForEmployee(tasks,context);
                     message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
                     message.Attachments = attachments;
                     await context.PostAsync(message);

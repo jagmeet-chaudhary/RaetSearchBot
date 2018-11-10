@@ -87,6 +87,9 @@ namespace SearchBot.Connectors.Mocks
             throw new NotImplementedException();
         }
 
-       
+        public AuditChangeContextDto GetOrgUnitChangeByDates(string orgUnitName, string start, string end, string token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

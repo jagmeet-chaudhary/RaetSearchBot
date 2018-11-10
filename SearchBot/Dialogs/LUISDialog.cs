@@ -15,6 +15,7 @@ using System.IdentityModel.Tokens.Jwt;
 using SearchBot.Service.RVM;
 using Autofac;
 using SearchBot.UI;
+using System.Collections.Generic;
 
 namespace SearchBot.Dialogs
 {
@@ -132,6 +133,63 @@ namespace SearchBot.Dialogs
 
         }
 
+        [LuisIntent("HRM.QueryOrgUnitChangeWithinDates")]
+        public async Task QueryOrgUnitChangeWithinDates(IDialogContext context,LuisResult result)
+        {
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
+   
+                
+            if (!string.IsNullOrEmpty(accessToken?.Token))
+            {
+                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnitName")?.Entity;
+                var resolutions = (IList<object>)result.Entities?.FirstOrDefault(x => x.Type == "builtin.datetimeV2.daterange")?.Resolution["values"];
+                if (resolutions == null)
+                {
+                    await context.PostAsync(conversationInterface.GetOrgUnitDatesValidationMessage(context));
+                }
+                else
+                {
+                    var entityValues = (Dictionary<string, object>)resolutions[0];
+                    string start = DateTime.UtcNow.Subtract(new TimeSpan(7, 0, 0, 0)).ToString();
+                    string end = DateTime.UtcNow.ToString();
+
+                    if (entityValues.ContainsKey("start"))
+                    {
+                        start = entityValues["start"]?.ToString();
+                    }
+                    if (entityValues.ContainsKey("end"))
+                    {
+                        end = entityValues["end"]?.ToString();
+                    }
+
+                    var auditChanges = employeeService.GetOrgUnitChangeByDates(orgUnitName, start, end, accessToken.Token);
+
+
+                    if (auditChanges != null)
+                    {
+
+                        var message = conversationInterface.GetOrgUnitAuditChangeMessage(auditChanges, context);
+                        await context.PostAsync(message);
+                        await context.PostAsync(conversationInterface.GetOrgUnitAuditChangeDetailsMessage(auditChanges, context));
+                    }
+                    else
+                    {
+                        var message = conversationInterface.GetNoAuditChangeMessage(orgUnitName);
+                        await context.PostAsync(message);
+                    }
+                }
+                
+
+            }
+            else
+            {
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
+
+            }
+
+        }
+        
+        
         [LuisIntent("HRM.QueryOrgUnitChange")]
         public async Task QueryOrgUnitChange(IDialogContext context, LuisResult result)
         {
@@ -148,12 +206,12 @@ namespace SearchBot.Dialogs
                 if (orgunit != null)
                 {
 
-                    var message = conversationInterface.GetOrgUnitMessage(orgunit, context);
+                    var message = conversationInterface.GetOrgUnitAuditChangeMessage(orgunit, context);
                     await context.PostAsync(message);
                 }
                 else
                 {
-                    var message = conversationInterface.GetNoOrgUnitMessage(orgUnitName);
+                    var message = conversationInterface.GetNoAuditChangeMessage(orgUnitName);
                     await context.PostAsync(message);
                 }
 
@@ -181,7 +239,7 @@ namespace SearchBot.Dialogs
                 if (tasks.Items.Count > 0)
                 {
                     await context.PostAsync(greetingsConversationInterface.GetMostRecentPendingTaskText(context));
-                    var attachments = conversationInterface.GetPendingTaskForEmployee(tasks);
+                    var attachments = conversationInterface.GetPendingTaskForEmployee(tasks,context);
                     message.AttachmentLayout = AttachmentLayoutTypes.Carousel;
                     message.Attachments = attachments;
                     await context.PostAsync(message);

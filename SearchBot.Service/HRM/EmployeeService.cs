@@ -40,7 +40,14 @@ namespace SearchBot.Service.HRM
 
             return orgunit;
         }
+        public AuditChangeContextDto GetOrgUnitChangeByDates(string orgUnitName,string start,string end, string token)
+        {
+            var startDate = DateTime.Parse(start).ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var endDate = DateTime.Parse(end).ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var auditChanges = hrmConnector.GetOrgUnitChangeByDates(orgUnitName, startDate, endDate, token);
 
+            return auditChanges;
+        }
         public int GetPendingTaskCountForEmployee(string token)
         {
             var pendingTask = hrmConnector.GetPendingTaskForEmployee(token);

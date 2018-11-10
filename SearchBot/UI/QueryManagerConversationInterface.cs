@@ -21,14 +21,14 @@ namespace SearchBot
             var listActionValues = new List<CardActionValues>();
             foreach(var employee in employees)
             {
-                listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.PostBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context)});
+                listActionValues.Add(new CardActionValues() {  ActionType = ActionTypes.ImBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context)});
             }
             attachments.Add(UIHelper.CreateHeroCard("I can see there are more than one person with the name you provided.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
             return attachments;
 
         }
 
-        public List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks)
+        public List<Attachment> GetPendingTaskForEmployee(ResultTaskDto tasks,IDialogContext context)
         {
             var baseUrl = ConfigurationManager.AppSettings["UiAppUrl"];
             
@@ -39,7 +39,7 @@ namespace SearchBot
                 //todo : remove hardcoding of url
                 listActionValues.Add(new CardActionValues() { ActionType = ActionTypes.OpenUrl, ButtonLabel = $"Click", ButtonValue = $"{baseUrl}home/{task.ProcessId}/{task.Id}" });
                 //attachments.Add(UIHelper.CreateHeroCard("Multiple task has been assigned to you", "Please click on them", "", listActionValues));
-                attachments.Add(UIHelper.CreateThumbnailCard("Multiple task has been assigned to you", listActionValues, task));
+                attachments.Add(UIHelper.CreateThumbnailCard("Multiple task has been assigned to you", listActionValues, task,context));
             }
 
             //attachments.Add(UIHelper.CreateThumbnailCard());
@@ -73,16 +73,24 @@ namespace SearchBot
         }
 
 
-        public string GetNoOrgUnitMessage(string name)
+        public string GetNoAuditChangeMessage(string name)
         {
             return $"Sorry, No changes has been done on {name}.";
         }
         
 
-        public string GetOrgUnitMessage(AuditChangeContextDto dto, IDialogContext context)
+        public string GetOrgUnitAuditChangeMessage(AuditChangeContextDto dto, IDialogContext context)
         {
             return $"Last change on {dto.SubjectName} was done by {dto.InitiatorName}".ToUserLocale(context);
         }
+        public string GetOrgUnitAuditChangeDetailsMessage(AuditChangeContextDto dto, IDialogContext context)
+        {
+            var baseUrl = ConfigurationManager.AppSettings["UiAppUrl"];
+            var url = $"{baseUrl}settings/auditlog/ODM/{dto.SubjectId}/{dto.AuditEntityId}";
+
+            return String.Format("You can also view the details of the changes made [here]({0})", url).ToUserLocale(context);
+        }
+
 
         public string GetManagerMessage(Employee employee)
         {
@@ -98,6 +106,11 @@ namespace SearchBot
         public string GetPasswordResetErrorMessage(string userName)
         {
             return $"Error Occurred while changing the Password for {userName}.";
+        }
+
+        public string GetOrgUnitDatesValidationMessage(IDialogContext context)
+        {
+            return $"Something seems odd...Can you please elaborate a little more on the date range.";
         }
     }
 }

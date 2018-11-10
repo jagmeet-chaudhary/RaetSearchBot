@@ -21,7 +21,9 @@ namespace SearchBot.Connectors
         PersonDetails GetUserDetails(string externalId, string token);
 
         IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token);
-       
+        AuditChangeContextDto GetOrgUnitChangeByDates(string orgUnitName, string start, string end, string token);
+
+
 
     }
 }

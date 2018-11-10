@@ -88,6 +88,25 @@ namespace SearchBot.Connectors.HRM
             return null;
         }
 
+        public AuditChangeContextDto GetOrgUnitChangeByDates(string orgUnitName, string start, string end, string token)
+        {
+            try
+            {
+                requestHelper.Init("HrmBaseUri");
+                requestHelper.AuthenticationToken = token;
+
+                string testurl = $"api/auditreader/odm/?$count=true&$top=25&$skip=0&$filter=EntityName%20eq%20%27HRM_OrganizationalUnit%27%20and%20ChangedDate%20ge%20{start}%20and%20ChangedDate%20le%20{end}&$orderby=ChangedDate%20desc";
+                var auditChanges = requestHelper.GetAsync<OdataAuditContextDto>(testurl).Result;
+                return auditChanges.Items.FirstOrDefault(s => s.SubjectName.ToLower() == orgUnitName);
+            }
+            catch (Exception ex)
+            {
+
+                ProcessException(ex, "GetOrgUnitByName");
+            }
+
+            return null;
+        }
         public AuditChangeContextDto GetOrgUnitByName(string orgUnitName, string token)
         {
             try

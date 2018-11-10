@@ -18,5 +18,7 @@ namespace SearchBot.Service.Interfaces
 
         int GetPendingTaskCountForEmployee(string token);
 
+        AuditChangeContextDto GetOrgUnitChangeByDates(string orgUnitName, string start, string end, string token);
+
     }
 }
