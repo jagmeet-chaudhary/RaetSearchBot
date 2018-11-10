@@ -88,7 +88,7 @@ namespace SearchBot
             var baseUrl = ConfigurationManager.AppSettings["UiAppUrl"];
             var url = $"{baseUrl}settings/auditlog/ODM/{dto.SubjectId}/{dto.AuditEntityId}";
 
-            return String.Format("You can also view the details of the changes made [here]({0})", url).ToUserLocale(context);
+            return String.Format("You can also view the [details]({0}) of the changes.", url).ToUserLocale(context);
         }
 
 

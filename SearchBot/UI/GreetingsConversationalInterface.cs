@@ -19,12 +19,13 @@ namespace SearchBot
         const string PendingTaskDetails = "You have {0} pending tasks.Do you want to see the details ?";
 
         const string YesText = "Yes";
-        const string UserInputQuestion = "Sure.What can I do for you ?";
+        const string OkText = "Sure.";
+        const string UserInputQuestion = "What else I can help you with today ?";
 
         const string FetchingPendingTasks = "Let me fetch your pending tasks...";
         const string NoPendingTaskText = "You have no pending tasks.";
         const string MostRecentPendingTaskText = "Here are the 5 most recent pending task.";
-        const string FullListPendingTaskText = "You can also view the full list of pending tasks [here]({0})";
+        const string FullListPendingTaskText = "You can also view the [full list]({0}) of pending tasks.";
 
         public string GetAskNameText(IDialogContext context)
         {
@@ -76,6 +77,11 @@ namespace SearchBot
             var baseUrl = ConfigurationManager.AppSettings["UiAppUrl"];
             var taskUrl = $"{baseUrl}inbox/to-be-completed";
             return String.Format(FullListPendingTaskText.ToUserLocale(context), taskUrl);
+        }
+
+        public string GetOkText(IDialogContext context)
+        {
+            return OkText.ToUserLocale(context);
         }
     }
 }

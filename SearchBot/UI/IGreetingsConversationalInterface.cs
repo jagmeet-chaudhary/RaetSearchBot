@@ -20,6 +20,6 @@ namespace SearchBot
         string GetNoPendingTaskText(IDialogContext context);
         string GetMostRecentPendingTaskText(IDialogContext context);
         string GetFullListPendingTaskText(IDialogContext context);
-      
+        string GetOkText(IDialogContext context);
     }
 }

@@ -53,12 +53,15 @@ namespace SearchBot.Dialogs
                 if (count > 0)
                 {
                     await context.PostAsync(String.Format(greetingConversationInterface.GetPendingTaskDetailsText(context), count));
+                    context.Wait(CallbackForTasks);
                 }
                 else
                 {
                     await context.PostAsync(String.Format(greetingConversationInterface.GetNoPendingTaskText(context)));
+                    await context.PostAsync(greetingConversationInterface.GetUserInputQuestionText(context));
+                    context.Done("");
                 }
-                context.Wait(CallbackForTasks);
+                
 
             }
         }
@@ -103,10 +106,12 @@ namespace SearchBot.Dialogs
                 {
                     message.Text = greetingConversationInterface.GetNoPendingTaskText(context);
                     await context.PostAsync(message);
+                    
                 }
             }
             else
             {
+                var responseText = $"{greetingConversationInterface.GetOkText(context)}{greetingConversationInterface.GetUserInputQuestionText(context)}";
                 await context.PostAsync(greetingConversationInterface.GetUserInputQuestionText(context));
             }
             context.Done(string.Empty);
