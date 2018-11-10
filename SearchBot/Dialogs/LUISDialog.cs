@@ -190,39 +190,7 @@ namespace SearchBot.Dialogs
         }
         
         
-        [LuisIntent("HRM.QueryOrgUnitChange")]
-        public async Task QueryOrgUnitChange(IDialogContext context, LuisResult result)
-        {
-
-            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
-
-            if (!string.IsNullOrEmpty(accessToken?.Token))
-            {
-                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
-
-                var orgunit = employeeService.GetOrgUnitByName(orgUnitName, accessToken.Token);
-
-
-                if (orgunit != null)
-                {
-
-                    var message = conversationInterface.GetOrgUnitAuditChangeMessage(orgunit, context);
-                    await context.PostAsync(message);
-                }
-                else
-                {
-                    var message = conversationInterface.GetNoAuditChangeMessage(orgUnitName);
-                    await context.PostAsync(message);
-                }
-
-            }
-            else
-            {
-                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
-
-            }
-
-        }
+        
 
 
         [LuisIntent("HRM.QueryPendingTaskForEmployee")]
@@ -341,19 +309,6 @@ namespace SearchBot.Dialogs
 
             //context.Wait(WaitForToken);
         }
-
-        //private async Task WaitForToken(IDialogContext context, IAwaitable<object> result)
-        //{
-        //    var activity = context.Activity as Activity;
-        //    if (activity.Name == "signin/verifyState")
-        //    {
-        //        // We do this so that we can pass handling to the right logic in the dialog. You can
-        //        // set this to be whatever string you want.
-        //        activity.Text = "loginComplete";
-        //        await Conversation.SendAsync(activity, () => new Dialogs.RootDialog());
-        //    }
-
-        //}
 
         private JsonWebToken GetInfoToken(string token)
         {
