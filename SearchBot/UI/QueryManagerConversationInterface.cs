@@ -23,7 +23,7 @@ namespace SearchBot
             {
                 listActionValues.Add(new CardActionValues() {  ActionType = ActionTypes.ImBack, ButtonLabel = $"{employee.FirstName} {employee.LastName}", ButtonValue = $"Who is the manager for {employee.FirstName} {employee.LastName}?".ToUserLocale(context)});
             }
-            attachments.Add(UIHelper.CreateHeroCard("I can see there are more than one person with the name you provided.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
+            attachments.Add(UIHelper.CreateHeroCard("I found multiple people with the name you provided.".ToUserLocale(context), "Who exactly are you looking for ?".ToUserLocale(context), "", listActionValues));
             return attachments;
 
         }
@@ -52,7 +52,9 @@ namespace SearchBot
 
             foreach (var sick_employee in sickLeave_Employees)
             {
-                bulder.AppendLine($"{sick_employee.Displayname} is on leave from {sick_employee.StartDate.ToShortDateString()} to {sick_employee.EndDate.ToShortDateString()}");
+               // bulder.AppendLine($"{sick_employee.Displayname} is on leave from {sick_employee.StartDate.ToShortDateString()} to {sick_employee.EndDate.ToShortDateString()}");
+
+                bulder.AppendLine($"{sick_employee.Displayname} is on sick leave from {sick_employee.StartDate.ToShortDateString()} to 12/12/2018");
             }
             return bulder.ToString();
         }
@@ -62,10 +64,6 @@ namespace SearchBot
             return $"Manager for {employee.FirstName} {employee.LastName} is {manager.FirstName} {manager.LastName}".ToUserLocale(context);
         }
 
-        public string GetNoAuditChangeMessage(IDialogContext context)
-        {
-            return "We did not find any audit changes for this organizational unit.".ToUserLocale(context);
-        }
 
         public string GetNoEmployeesMessage(IDialogContext context)
         {
@@ -73,9 +71,9 @@ namespace SearchBot
         }
 
 
-        public string GetNoAuditChangeMessage(string name)
+        public string GetNoAuditChangeMessage(string name,IDialogContext context)
         {
-            return $"Sorry, No changes has been done on {name}.";
+            return $"Sorry, No changes has been done on {name}.".ToUserLocale(context);
         }
         
 
@@ -97,20 +95,32 @@ namespace SearchBot
             throw new NotImplementedException();
         }
 
-        public string GetPasswordResetMessage(string userName)
+        public string GetPasswordResetMessage(string userName,IDialogContext context)
         {
-            return $"Password has been changed for {userName}.";
+            return $"Password has been changed for {userName}.".ToUserLocale(context);
         }
 
 
-        public string GetPasswordResetErrorMessage(string userName)
+        public string GetPasswordResetErrorMessage(string userName, IDialogContext context)
         {
-            return $"Error Occurred while changing the Password for {userName}.";
+            return $"Error Occurred while changing the Password for {userName}".ToUserLocale(context);
         }
 
         public string GetOrgUnitDatesValidationMessage(IDialogContext context)
         {
-            return $"Something seems odd...Can you please elaborate a little more on the date range.";
+            return $"Something seems odd...Can you please elaborate a little more on the date range.".ToUserLocale(context);
+        }
+
+        public string GetHireLink(IDialogContext context)
+        {
+            var baseUrl = ConfigurationManager.AppSettings["UiAppUrl"];
+            var taskUrl = $"{baseUrl}employees/hire////start";
+            return $"Go to this [link]({taskUrl}) to initiate a hire process.".ToUserLocale(context);
+        }
+
+        public string GetNoSickLeaveMessage(IList<SickLeave_Employee> sickLeave_Employees, IDialogContext context)
+        {
+            return $"There are no sick leaves registered within this org unit for the provided date range.".ToUserLocale(context);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace SearchBot
 
         const string AskName = "What is your name?";
 
-        const string HiGreeting = "Hi {0}.  How are you today?";
+        const string HiGreeting = "Hi {0}, I'm Raet Bot.  How are you today?";
 
         const string PendingTaskDetails = "You have {0} pending tasks.Do you want to see the details ?";
 

@@ -30,7 +30,7 @@ namespace SearchBot.Dialogs
         }
         public async Task StartAsync(IDialogContext context)
         {
-            await context.PostAsync(greetingConversationInterface.GetRaetBotIntroText(context));
+            //await context.PostAsync(greetingConversationInterface.GetRaetBotIntroText(context));
             await Respond(context);
         }
 

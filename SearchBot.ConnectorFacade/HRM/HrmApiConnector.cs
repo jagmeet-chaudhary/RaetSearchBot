@@ -185,17 +185,19 @@ namespace SearchBot.Connectors.HRM
     
         }
 
-        public IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token)
+        public IList<SickLeave_Employee> GetSickLeaveEmployees(string orgUnitName,string from, string to, string token)
         {
             try
             {
                 requestHelper.Init("HrmBaseUri");
                 requestHelper.AuthenticationToken = token;
-
+                //requestHelper.BaseUri = "https://yfo-main-test-hrmapi.azurewebsites.net";
                 string apiUrl = $"api/sickleaves/organizationalunits";
                 var SickLeave_orgUnits = requestHelper.GetAsync<IList<SickLeave_orgUnit>>(apiUrl).Result;
 
-                var orgUnit = SickLeave_orgUnits != null && SickLeave_orgUnits.Count() > 0 ? SickLeave_orgUnits[0] : null;
+                var orgUnit = SickLeave_orgUnits.FirstOrDefault(x => x.FullName.ToUpper().Equals(orgUnitName.Trim().ToUpper()));
+
+                //var orgUnit = SickLeave_orgUnits != null && SickLeave_orgUnits.Count() > 0 ? SickLeave_orgUnits[0] : null;
 
                 if (orgUnit == null)
                     return null;

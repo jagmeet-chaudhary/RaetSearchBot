@@ -46,7 +46,7 @@ namespace SearchBot.Service.HRM
             var endDate = DateTime.Parse(end).ToString("yyyy-MM-ddTHH:mm:ssZ");
             var auditChanges = hrmConnector.GetOrgUnitChangeByDates(orgUnitName, startDate, endDate, token);
 
-            return auditChanges;
+            return auditChanges;    
         }
         public int GetPendingTaskCountForEmployee(string token)
         {
@@ -68,12 +68,15 @@ namespace SearchBot.Service.HRM
         }
 
         public IList<SickLeave_Employee> GetSickLeaveEmployees(string orgunitname, string from, string to, string token)
-        {            
-
-            var sickLeave_Employees = hrmConnector.GetSickLeaveEmployees(from,to,token);
+        {
+            var startDate = DateTime.Parse(from).ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var endDate = DateTime.Parse(to).ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var sickLeave_Employees = hrmConnector.GetSickLeaveEmployees(orgunitname,startDate,endDate,token);
 
             return sickLeave_Employees;
         }
+
+      
 
     }
 }

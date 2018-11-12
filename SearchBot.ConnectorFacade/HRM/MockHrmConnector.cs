@@ -82,7 +82,7 @@ namespace SearchBot.Connectors.Mocks
             throw new NotImplementedException();
         }
 
-        public IList<SickLeave_Employee> GetSickLeaveEmployees(string from, string to, string token)
+        public IList<SickLeave_Employee> GetSickLeaveEmployees(string orgUnitName,string from, string to, string token)
         {
             throw new NotImplementedException();
         }

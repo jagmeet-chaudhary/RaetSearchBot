@@ -16,6 +16,7 @@ using SearchBot.Service.RVM;
 using Autofac;
 using SearchBot.UI;
 using System.Collections.Generic;
+using SearchBot.Common;
 
 namespace SearchBot.Dialogs
 {
@@ -63,6 +64,20 @@ namespace SearchBot.Dialogs
             else
             {
                 await context.PostAsync("You're already logged in.".ToUserLocale(context));
+            }
+        }
+        [LuisIntent("HRM.Hire")]
+        public async Task Hire(IDialogContext context, LuisResult result)
+        {
+            var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
+
+            if (string.IsNullOrEmpty(accessToken?.Token))
+            {
+                await SendOAuthCardAsync(context, (Activity)context.Activity).ConfigureAwait(false);
+            }
+            else
+            {
+                await context.PostAsync(conversationInterface.GetHireLink(context));
             }
         }
 
@@ -174,7 +189,7 @@ namespace SearchBot.Dialogs
                     }
                     else
                     {
-                        var message = conversationInterface.GetNoAuditChangeMessage(orgUnitName);
+                        var message = conversationInterface.GetNoAuditChangeMessage(orgUnitName,context);
                         await context.PostAsync(message);
                     }
                 }
@@ -238,13 +253,42 @@ namespace SearchBot.Dialogs
 
             var accessToken = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"]);
 
+
             if (!string.IsNullOrEmpty(accessToken?.Token))
             {
-                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnit")?.Entity;
+                var orgUnitName = result.Entities?.FirstOrDefault(x => x.Type == "OrgUnitName")?.Entity;
+                var resolutions = (IList<object>)result.Entities?.FirstOrDefault(x => x.Type == "builtin.datetimeV2.daterange")?.Resolution["values"];
+                if (resolutions == null)
+                {
+                    await context.PostAsync(conversationInterface.GetOrgUnitDatesValidationMessage(context));
+                }
+                else
+                {
+                    var entityValues = (Dictionary<string, object>)resolutions[0];
+                    string start = DateTime.UtcNow.Subtract(new TimeSpan(7, 0, 0, 0)).ToString();
+                    string end = DateTime.UtcNow.ToString();
 
-                var sickLeave_Employees = employeeService.GetSickLeaveEmployees(orgUnitName, "1800-01-01", "9999-12-31", accessToken.Token);
+                    if (entityValues.ContainsKey("start"))
+                    {
+                        start = entityValues["start"]?.ToString();
+                    }
+                    if (entityValues.ContainsKey("end"))
+                    {
+                        end = entityValues["end"]?.ToString();
+                    }
 
-                await context.PostAsync(conversationInterface.GetleavesOfEmployees(sickLeave_Employees));
+
+                    var sickLeave_Employees = employeeService.GetSickLeaveEmployees(orgUnitName, start, end, accessToken.Token);
+                    if(sickLeave_Employees.Count() > 0)
+                    {
+                        await context.PostAsync(conversationInterface.GetleavesOfEmployees(sickLeave_Employees));
+                    }
+                    else
+                    {
+                        await context.PostAsync(conversationInterface.GetNoSickLeaveMessage(sickLeave_Employees,context));
+                    }
+                    
+                }
 
 
             }
@@ -271,11 +315,11 @@ namespace SearchBot.Dialogs
 
             if(reset_RvmPassword)
             {
-                await context.PostAsync(conversationInterface.GetPasswordResetMessage(userName));
+                await context.PostAsync(conversationInterface.GetPasswordResetMessage(userName,context));
             }
             else
             {
-                await context.PostAsync(conversationInterface.GetPasswordResetErrorMessage(userName));
+                await context.PostAsync(conversationInterface.GetPasswordResetErrorMessage(userName,context));
             }
                      
         }
@@ -306,8 +350,39 @@ namespace SearchBot.Dialogs
             string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
             var reply = await context.Activity.CreateOAuthReplyAsync(ConnectionName, "Please sign in to proceed.", "Sign In").ConfigureAwait(false);
             await context.PostAsync(reply);
+            if(context.Activity.ChannelId == "slack" || context.Activity.ChannelId == "skype")
+            {
+                context.Wait(WaitForToken);
+            }
+            
+        }
+        private async Task WaitForToken(IDialogContext context, IAwaitable<object> result)
+        {
+            //LogFactory.Log.Info("Inside WaitForToken");
+            //var activity = (context.Activity as Activity);
+            //var verificationCode = activity.Text;
+            //LogFactory.Log.Info($"verification code {verificationCode}");
+            //string ConnectionName = ConfigurationManager.AppSettings["ConnectionName"];
+            //var oauthClient = activity.GetOAuthClient();
+            //var tokenResponse = oauthClient.OAuthApi.GetUserTokenAsync(activity.From.Id, ConnectionName, magicCode: verificationCode).Result;
+            LogFactory.Log.Info("Inside WaitForToken");
+            var verificationCode = (context.Activity as Activity).Text.Trim();
+            LogFactory.Log.Info($"verification code {verificationCode}");
+            var tokenResponse = await context.GetUserTokenAsync(ConfigurationManager.AppSettings["ConnectionName"], verificationCode);
 
-            //context.Wait(WaitForToken);
+            if (tokenResponse != null)
+            {
+                LogFactory.Log.Info("Token : " + tokenResponse.Token);
+                JsonWebToken jsonWebToken = GetInfoToken(tokenResponse.Token);
+                context.UserData.SetValue("Name", jsonWebToken.Name);
+                context.Call(new GreetingDialog(employeeService, greetingsConversationInterface, conversationInterface), Callback);
+               
+                return;
+            }
+            else
+            {
+                LogFactory.Log.Info("Token response is null");
+            }
         }
 
         private JsonWebToken GetInfoToken(string token)
